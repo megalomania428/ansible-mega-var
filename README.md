@@ -1,6 +1,6 @@
 # Actions from inventory variables
 
-[![molecule](https://github.com/raven428/ansible-mega-var/actions/workflows/test-role.yaml/badge.svg)](https://github.com/raven428/ansible-mega-var/actions/workflows/test-role.yaml)
+[![molecule](https://github.com/raven428/ansible-mega-var/actions/workflows/repo-test.yaml/badge.svg)](https://github.com/raven428/ansible-mega-var/actions/workflows/repo-test.yaml)
 
 The role performs actions from inventory variables without creating a lot of tasks and copy-pasted roles
 
@@ -18,7 +18,7 @@ The role performs actions from inventory variables without creating a lot of tas
 
   ```bash
   git checkout master && git pull
-  git tag -fm $(git branch --sho) 1.0.8 && git push --force origin $(git describe)
+  git tag -fm $(git branch --sho) 1.0.9 && git push --force origin $(git describe)
   ```
 
 ## Example `site.yaml` (TLDR)
