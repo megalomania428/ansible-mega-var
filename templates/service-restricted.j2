@@ -47,7 +47,7 @@ set default_service = {
 %}
 {# SystemCallFilter memo: use "systemd-analyze syscall-filter", Luke #}
 {%  if 'service' in v and v.service != {} %}
-{%    do default_service.update(v.service) %}
+{%    set _ = default_service.update(v.service) %}
 {%  endif %}
 {%  for k,v in default_service.items() if v is defined and v is not none %}
 {{    k }}={{ v }}

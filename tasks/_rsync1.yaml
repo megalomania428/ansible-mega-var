@@ -34,14 +34,19 @@
     use_ssh_args: "{{ i.rsync_opts | default(omit) }}"
     verify_host: "{{ i.rsync_opts | default(omit) }}"
   register: _task_result
-  when: "{{ i.when | default(omit) }} | default(true)" # noqa no-jinja-when
+  when: "{{ _meva_cond_true if i.when is not defined else (i.when if i.when is string else
+    (_meva_cond_true if i.when else _meva_cond_false)) }}" # noqa no-jinja-when
   tags: "{{ i.tags | default(omit) }}"
   diff: "{{ i.diff | default(omit) }}"
   notify: "{{ i.notify | default(omit) }}"
   timeout: "{{ i.timeout | default(omit) }}"
   check_mode: "{{ i.check_mode | default(omit) }}"
-  failed_when: "{{ i.failed_when | default(omit) }} | default(_task_result.failed)"
-  changed_when: "{{ i.changed_when | default(omit) }} | default(_task_result.changed)"
+  failed_when: "{{ _meva_cond_failed if i.failed_when is not defined else (i.failed_when
+    if i.failed_when is string else (_meva_cond_true if i.failed_when else
+    _meva_cond_false)) }}"
+  changed_when: "{{ _meva_cond_changed if i.changed_when is not defined else
+    (i.changed_when if i.changed_when is string else (_meva_cond_true if i.changed_when
+    else _meva_cond_false)) }}"
   ignore_errors: "{{ i.ignore_errors | default(false) }}"
   become: "{{ i.become | default(omit) }}"
   become_exe: "{{ i.become_exe | default(omit) }}"
@@ -49,7 +54,8 @@
   become_flags: "{{ i.become_flags | default(omit) }}"
   retries: "{{ i.retries | default(3 if 'until' in i else 0) }}"
   delay: "{{ i.delay | default(omit) }}"
-  until: "{{ i.until | default(omit) }} | default(_task_result is success)"
+  until: "{{ _meva_cond_success if i.until is not defined else (i.until if i.until is
+    string else (_meva_cond_true if i.until else _meva_cond_false)) }}"
   async: "{{ i.async | default(omit) }}"
   poll: "{{ i.poll | default(omit) }}"
   no_log: "{{ i.no_log | default(omit) }}"
