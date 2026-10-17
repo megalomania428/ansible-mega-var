@@ -1,4 +1,5 @@
 ---
+# cspell:ignore armv externaleditor smartpad
 meva_arch_map1:
   i386: "i386"
   x86_64: "amd64"
@@ -6,8 +7,8 @@ meva_arch_map1:
   armv7l: "arm"
 meva_arch_bin1: >-
   {{
-    meva_arch_map1[ansible_architecture] |
-    default(ansible_architecture)
+    meva_arch_map1[ansible_facts['architecture']] |
+    default(ansible_facts['architecture'])
   }}
 ctime: "{{ now(fmt='%Y%m%d%H%M%S') }}"
 github_token: "{{ lookup('env', 'ANSIBLE_GITHUB_TOKEN') }}"
@@ -57,7 +58,7 @@ dirs2prepare: |
   {%- set result = [ ] -%}
   {%- for path in download_paths.values() -%}
     {%- for option in download_options.values() -%}
-      {%- do result.append({'path': download_root ~ '/' ~ path ~ '/' ~ option}) -%}
+      {%- set _ = result.append({'path': download_root ~ '/' ~ path ~ '/' ~ option}) -%}
     {%- endfor -%}
   {%- endfor -%}
   {{  result | list }}
@@ -298,7 +299,7 @@ download_prefix: >-
 tests_compress: >-
   {%- set result = [] -%}
   {%- for format in compression_formats | flatten -%}
-    {%- do result.append({
+    {%- set _ = result.append({
       'url': download_prefix ~ '.' ~ format,
       'dest': download_root ~ '/' ~ format,
       'down_name': decompressed_file_name ~ '.' ~ format,

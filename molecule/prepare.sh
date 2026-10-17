@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# cspell:ignore moreutils
 set -ueo pipefail
 umask 0022
 : "${APPIMAGE_RELEASE:="latest"}"

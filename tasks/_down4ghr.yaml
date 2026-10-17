@@ -1,4 +1,5 @@
 ---
+# cspell:ignore selectattr unredirected
 - name: Get releases list
   become: false
   ansible.builtin.uri:

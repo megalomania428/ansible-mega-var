@@ -1,4 +1,5 @@
 ---
+# cspell:ignore unredirected
 - name: "Download to local url {{ i.url }}"
   become: false
   ansible.builtin.get_url:
