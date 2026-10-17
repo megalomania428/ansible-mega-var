@@ -133,10 +133,11 @@ Here will be only non-obvious options of usage
 
 ### Common options of wrapper items
 
-Every item of the wrapper variables, except `meva_file2down` and `meva_ghr2down`, accepts two keys besides the module options:
+Every item of the wrapper variables, except `meva_file2down` and `meva_ghr2down`, accepts the following keys besides the module options:
 
 - `no_log: true` hides the label, the result, and the diff of this item only, e.g., for a private key in `content` of `meva_files2upload`; for `meva_key2user` and `meva_systemd4units` the label of the `included:` line becomes `(censored due to no_log)`
 - `loop_label` replaces the item printed in the `(item=…)` label, the whole item is printed by default
+- `when`, `failed_when`, `changed_when` and `until` (the latter is ignored by `meva_packages`, which always retries until success) take an Ansible expression string without `{{ }}`, e.g., `changed_when: _task_result.rc == 2`, or a boolean; the expression is evaluated as is, nothing like `| default(…)` is appended to it, so a variable undefined in the expression is an error, use `x is defined and …` or `x | default(…)` explicitly: it fails the item, except `when` on ansible-core older than 2.21, where the error is ignored; when the key is absent the wrapper default applies, e.g., `_task_result.failed` for `failed_when`
 
 ### Simple HTTP download with `meva_file2down` variable
 

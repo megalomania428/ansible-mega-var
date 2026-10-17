@@ -27,7 +27,6 @@ provisioner:
   config_options:
     defaults:
       remote_tmp: /tmp
-      jinja2_extensions: jinja2.ext.do
 verifier:
   name: ansible
 scenario:
