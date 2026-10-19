@@ -57,7 +57,7 @@
   delegate_to: "{{ i.delegate_to if _meva_keys.unarchive_delegation else omit }}"
   register: _file_creates
   when:
-    - i.archive | default(false)
+    - i.archive | default(false) | bool
 
 - name: Ensure '{{ _meva_keys.dest_path | dirname }}' absent for upgrade due creates
     '{{ _meva_keys.dest_path }}' missed or updated='{{ _download_archive.changed }}' by
@@ -70,13 +70,13 @@
   no_log: true
   diff: false
   when:
-    - i.archive | default(false)
+    - i.archive | default(false) | bool
     - i.files | default([]) | length > 0 or
       'files' not in i and i.creates | default('') | dirname != ''
     - not _file_creates.stat.exists | default(false) or _download_archive.changed
 
 - name: Unpack archive block
-  when: i.archive | default(false)
+  when: i.archive | default(false) | bool
   block:
     - name: Ensure target directory exists
       ansible.builtin.file:
@@ -134,7 +134,9 @@
       delegate_to: "{{ i.delegate_to | default(omit) }}"
       notify: "{{ i.notify | default(omit) }}"
       when:
-        - unarchive_result.failed | default(true)
+        - i.creates | default('') | dirname == '' or unarchive_result is failed
+        - not ansible_check_mode or
+          _meva_keys.dest_dir == _meva_keys.download_name ~ '-dir'
 
 - name: Propagate and set attrs
   ansible.builtin.include_tasks: _down2unp.yaml
@@ -145,7 +147,7 @@
       {%- set result = [] -%}
     {%- elif i.files | default([]) | length == 0 -%}
       {%- set result = [{
-        'src': _meva_keys.download_name if not i.archive | default(false)
+        'src': _meva_keys.download_name if not i.archive | default(false) | bool
           else _meva_keys.dest_path,
         'name': _meva_keys.dest_path | basename,
         'follow': i.follow | default(omit),

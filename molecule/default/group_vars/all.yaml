@@ -88,37 +88,39 @@ meva_run4shell:
     changed_when: false
 # fails when conditionals are moved out of jinja or completely into it
 meva_traps:
-  - when: none == meva_trap_undefined
+  - when: meva_trap_undefined is defined
     failed_when: true
-  - failed_when: none == meva_trap_undefined
-    changed_when: none == meva_trap_undefined
+  - failed_when: meva_trap_undefined is defined
+    changed_when: meva_trap_undefined is defined
     notify: Trap broken changed_when
   - failed_when: _task_result.attempts < 2
     changed_when: false
-    until: _task_result.attempts > 1 or none == meva_trap_undefined
+    until: _task_result.attempts > 1 or meva_trap_undefined is defined
     retries: 1
     delay: 0
+# existing source keeps the trap failure inside the module, dest parent is absent
+meva_trap_src: "{{ playbook_dir }}/files/meva-trap.txt"
 meva_trap_args:
-  _apt.yaml: { name: meva-trap-absent, state: absent }
-  _group.yaml: { name: meva-trap-absent, state: absent }
-  _user.yaml: { name: meva-trap-absent, state: absent }
-  _file.yaml: { path: /nonexistent/meva-trap-absent, state: absent }
-  _template.yaml: { src: /nonexistent/meva-trap.j2, dest: /nonexistent/meva-trap }
-  _copy.yaml: { src: /nonexistent/meva-trap, dest: /nonexistent/meva-trap }
-  _rsync.yaml: { src: /nonexistent/meva-trap, dest: /nonexistent/meva-trap }
-  _systemd.yaml: { name: meva-trap-absent.service, state: stopped }
-  _key.yaml: { user: meva-trap-absent, key: ssh-ed25519 AAAA meva-trap, state: absent }
-  _parted.yaml: { device: /dev/meva-trap-absent, state: info }
-  _lvg.yaml: { vg: meva-trap-absent, state: absent }
-  _lvol.yaml: { vg: meva-trap-absent, lv: meva-trap-absent, state: absent }
-  _filesystem.yaml: { dev: /dev/meva-trap-absent, state: absent }
-  _mount.yaml: { path: /nonexistent/meva-trap-absent, state: unmounted }
-  _command.yaml: { argv: [/usr/bin/env, "true"] }
-  _shell.yaml: { cmd: /usr/bin/env true }
+  _apt.yaml: {name: meva-trap-absent, state: absent}
+  _group.yaml: {name: meva-trap-absent, state: absent}
+  _user.yaml: {name: meva-trap-absent, state: absent}
+  _file.yaml: {path: /nonexistent/meva-trap-absent, state: absent}
+  _template.yaml: {src: "{{ meva_trap_src }}", dest: /nonexistent/meva-trap}
+  _copy.yaml: {src: "{{ meva_trap_src }}", dest: /nonexistent/meva-trap}
+  _rsync.yaml: {src: /nonexistent/meva-trap, dest: /nonexistent/meva-trap}
+  _systemd.yaml: {name: meva-trap-absent.service, state: stopped}
+  _key.yaml: {user: meva-trap-absent, key: ssh-ed25519 AAAA meva-trap, state: absent}
+  _parted.yaml: {device: /dev/meva-trap-absent, state: info}
+  _lvg.yaml: {vg: meva-trap-absent, state: absent}
+  _lvol.yaml: {vg: meva-trap-absent, lv: meva-trap-absent, state: absent}
+  _filesystem.yaml: {dev: /dev/meva-trap-absent, state: absent}
+  _mount.yaml: {path: /nonexistent/meva-trap-absent, state: unmounted}
+  _command.yaml: {argv: [/usr/bin/env, "true"]}
+  _shell.yaml: {cmd: /usr/bin/env true}
 meva_notify_items:
-  - { changed_when: false, failed_when: false, notify: Notify unchanged first }
-  - { changed_when: true, failed_when: false, notify: Notify changed }
-  - { changed_when: false, failed_when: false, notify: Notify unchanged last }
+  - {changed_when: false, failed_when: false, notify: Notify unchanged first}
+  - {changed_when: true, failed_when: false, notify: Notify changed}
+  - {changed_when: false, failed_when: false, notify: Notify unchanged last}
 # meva_notify_items combined with meva_trap_args of every wrapper file
 meva_notify_cases: "{{ dict(meva_trap_args | zip(meva_trap_args.values()
   | product(meva_notify_items) | map('combine') | batch(meva_notify_items | length))) }}"

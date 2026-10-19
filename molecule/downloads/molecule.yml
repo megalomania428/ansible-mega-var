@@ -1,4 +1,5 @@
 ---
+# jscpd:ignore-start
 dependency:
   name: galaxy
   enabled: true
@@ -27,7 +28,6 @@ provisioner:
   config_options:
     defaults:
       remote_tmp: /tmp
-      jinja2_extensions: jinja2.ext.do
 verifier:
   name: ansible
 scenario:
@@ -36,6 +36,7 @@ scenario:
     - dependency
     - create
     - prepare
+  # jscpd:ignore-end
   check_sequence:
     - check
     - verify
