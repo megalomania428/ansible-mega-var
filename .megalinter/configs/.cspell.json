@@ -1,0 +1,87 @@
+{
+  "version": "0.2",
+  "language": "en,ru",
+  "words": [
+    "appimage",
+    "chevrge",
+    "devskim",
+    "lvol",
+    "lvol",
+    "lycheeignore",
+    "meva",
+    "opencode",
+    "opeview",
+    "pideview",
+    "pylintrc",
+    "selevel",
+    "serole",
+    "setype",
+    "seuser",
+    "shobj",
+    "snomcy",
+    "vimrc",
+    "wripy",
+    "xhigh",
+    "zizmor"
+  ],
+  "dictionaryDefinitions": [
+    {
+      "name": "ru-ru",
+      "path": "/node-cspell/node_modules/@cspell/dict-ru_ru/ru_ru.trie.gz",
+      "description": "Russian Dictionary (Combined)"
+    },
+    {
+      "name": "softwareTerms",
+      "path": "/node-cspell/node_modules/@cspell/dict-software-terms/dict/softwareTerms.txt.gz",
+      "description": "Software terms dictionary"
+    },
+    {
+      "name": "software-tools",
+      "path": "/node-cspell/node_modules/@cspell/dict-software-terms/dict/software-tools.txt",
+      "description": "Software tools dictionary"
+    },
+    {
+      "name": "networking-terms",
+      "path": "/node-cspell/node_modules/@cspell/dict-software-terms/dict/networkingTerms.txt",
+      "description": "Software networking terms dictionary"
+    },
+    {
+      "name": "computing-acronyms",
+      "path": "/node-cspell/node_modules/@cspell/dict-software-terms/dict/computing-acronyms.txt",
+      "description": "Common acronyms related to computing"
+    }
+  ],
+  "dictionaries": [
+    "aws",
+    "companies",
+    "computing-acronyms",
+    "cpp",
+    "csharp",
+    "en-us",
+    "filetypes",
+    "fonts",
+    "go",
+    "html",
+    "java",
+    "latex",
+    "misc",
+    "networking-terms",
+    "node",
+    "npm",
+    "php",
+    "powershell",
+    "python",
+    "ru-ru",
+    "ruby",
+    "rust",
+    "software-tools",
+    "softwareTerms",
+    "sql",
+    "svelte",
+    "terraform",
+    "typescript",
+    "vue"
+  ],
+  "ignorePaths": ["**/go.mod", "**/go.sum", "molecule/downloads/files/**/*"],
+  "enabled": true
+}

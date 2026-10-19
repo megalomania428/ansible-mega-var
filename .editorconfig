@@ -8,8 +8,6 @@ max_line_length = 90
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[molecule/prepare.sh]
-max_line_length = 222
-
-[{*.md,molecule/downloads/files/**}]
+[{**.{md,json},.gitleaksignore,molecule/downloads/files/**}]
 max_line_length = unset
+trim_trailing_whitespace = unset

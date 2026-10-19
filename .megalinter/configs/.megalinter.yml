@@ -1,0 +1,14 @@
+---
+# cspell:ignore pulumi
+EXTENDS: .megalinter-action.yml
+PYTHON_PYLINT_PRE_COMMANDS:
+  - command: |
+      which ansible pylint
+      source /venvs/ansible-lint/bin/activate
+      VER="$(python3 -c 'import ansible; print(ansible.__version__)')"
+      /venvs/pylint/bin/pip install pytest PyYAML ansible-core==$VER jinja2 freezegun \
+      'pulumi>=3.0.0,<4.0.0' 'pulumi-vault>=7.0.0' requests
+      UTILS_DIR="$(/venvs/pylint/bin/python -c 'import ansible.module_utils; \
+        print(next(iter(ansible.module_utils.__path__)))')"
+      ln -vs -- "${PWD}/module_utils/mega_var.py" "${UTILS_DIR}/mega_var.py"
+    cwd: workspace

@@ -1,6 +1,0 @@
----
-profile: production
-offline: true
-enable_list:
-  - all
-warn_list: []
