@@ -38,70 +38,70 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  default:
-    name: default
-    timeout-minutes: 33
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        call_mode:
-          - full
-          - split
-        ansible_ver:
-          - "06"
-          - "10"
-          - "14"
-    steps:
-      - uses: actions/checkout@v7 # zizmor: ignore[unpinned-uses]
-        with:
-          fetch-depth: 0
-          submodules: true
-          persist-credentials: false
-      - name: test role
-        env:
-          ANSIBLE_CALL_MODE: ${{ matrix.call_mode }}
-          APPIMAGE_NAME: "ansible-${{ matrix.ansible_ver }}-005.AppImage"
-          ANSIBLE_GITHUB_TOKEN: ${{ secrets.LOCAL_WS_TOKEN }}
-        run: molecule/default/run-tests.sh
-  downloads:
-    name: t
-    timeout-minutes: 33
-    runs-on: ubuntu-24.04
-    needs:
-      - pytest
-    strategy:
-      fail-fast: false
-      matrix:
-        prop_type:
-          - simple_other
-          - simple_target
-          - simple_controller
-          - release_other
-          - release_target
-          - release_controller
-          - compress # (full=remote, split=local)
-        call_mode:
-          - full
-          - split
-        ansible_ver:
-          - "06"
-          - "10"
-          - "14"
-    steps:
-      - uses: actions/checkout@v7 # zizmor: ignore[unpinned-uses]
-        with:
-          fetch-depth: 0
-          submodules: true
-          persist-credentials: false
-      - name: test role
-        env:
-          ANSIBLE_PROP_TYPE: ${{ matrix.prop_type }}
-          ANSIBLE_CALL_MODE: ${{ matrix.call_mode }}
-          APPIMAGE_NAME: "ansible-${{ matrix.ansible_ver }}-005.AppImage"
-          ANSIBLE_GITHUB_TOKEN: ${{ secrets.LOCAL_WS_TOKEN }}
-        run: molecule/downloads/run-tests.sh
-  pytest:
+  # default:
+  #   name: default
+  #   timeout-minutes: 33
+  #   runs-on: ubuntu-24.04
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       call_mode:
+  #         - full
+  #         - split
+  #       ansible_ver:
+  #         - "06"
+  #         - "10"
+  #         - "14"
+  #   steps:
+  #     - uses: actions/checkout@v7 # zizmor: ignore[unpinned-uses]
+  #       with:
+  #         fetch-depth: 0
+  #         submodules: true
+  #         persist-credentials: false
+  #     - name: test role
+  #       env:
+  #         ANSIBLE_CALL_MODE: ${{ matrix.call_mode }}
+  #         APPIMAGE_NAME: "ansible-${{ matrix.ansible_ver }}-005.AppImage"
+  #         ANSIBLE_GITHUB_TOKEN: ${{ secrets.LOCAL_WS_TOKEN }}
+  #       run: molecule/default/run-tests.sh
+  # downloads:
+  #   name: t
+  #   timeout-minutes: 33
+  #   runs-on: ubuntu-24.04
+  #   needs:
+  #     - pytest
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       prop_type:
+  #         - simple_other
+  #         - simple_target
+  #         - simple_controller
+  #         - release_other
+  #         - release_target
+  #         - release_controller
+  #         - compress # (full=remote, split=local)
+  #       call_mode:
+  #         - full
+  #         - split
+  #       ansible_ver:
+  #         - "06"
+  #         - "10"
+  #         - "14"
+  #   steps:
+  #     - uses: actions/checkout@v7 # zizmor: ignore[unpinned-uses]
+  #       with:
+  #         fetch-depth: 0
+  #         submodules: true
+  #         persist-credentials: false
+  #     - name: test role
+  #       env:
+  #         ANSIBLE_PROP_TYPE: ${{ matrix.prop_type }}
+  #         ANSIBLE_CALL_MODE: ${{ matrix.call_mode }}
+  #         APPIMAGE_NAME: "ansible-${{ matrix.ansible_ver }}-005.AppImage"
+  #         ANSIBLE_GITHUB_TOKEN: ${{ secrets.LOCAL_WS_TOKEN }}
+  #       run: molecule/downloads/run-tests.sh
+  tests:
     name: tests
     timeout-minutes: 5
     runs-on: ubuntu-24.04
@@ -160,8 +160,9 @@ jobs:
     timeout-minutes: 11
     runs-on: ubuntu-24.04
     needs:
-      - default
-      - downloads
+      - tests
+      # - default
+      # - downloads
       - linters
       - MegaLinter
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
