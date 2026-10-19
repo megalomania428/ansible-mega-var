@@ -1,4 +1,5 @@
 ---
+# cspell:ignore pideview
 name: AI Pideview
 on:
   # checkov:skip=CKV_GHA_7: dispatch only pipeline
