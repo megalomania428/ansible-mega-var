@@ -1,0 +1,13 @@
+{
+  "threshold": 0,
+  "reporters": ["html", "markdown"],
+  "ignore": [
+    "tasks/*",
+    "**/*_test.go",
+    "library/meva_pro.py",
+    "megalinter/configs/*",
+    ".megalinter/configs/*",
+    "review-pi_dev/main.md",
+    "molecule/download/files/**/*"
+  ]
+}
