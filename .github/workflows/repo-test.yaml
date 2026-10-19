@@ -138,19 +138,23 @@ jobs:
           env.BRA }}/_shared/install/ansible/check-dir.sh | bash
   MegaLinter:
     name: MegaLinter
+    if: github.event_name != 'pull_request' ||
+      (github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.login != 'dependabot[bot]')
+    permissions:
+      contents: read
     timeout-minutes: 11
     runs-on: ubuntu-24.04
-    if: github.event_name != 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v7 # zizmor: ignore[unpinned-uses]
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          submodules: true
+          submodules: recursive
           persist-credentials: false
-      - name: MegaLinter
-        uses: oxsecurity/megalinter@v9 # zizmor: ignore[unpinned-uses]
+      - name: Run MegaLinter
         env:
-          VALIDATE_ALL_CODEBASE: true
+          OVERRIDE_DIR: .megalinter/configs
+        uses: megalomania428/github-actions/megalinter@master
   mega_service:
     name: test mega-service role
     timeout-minutes: 11
