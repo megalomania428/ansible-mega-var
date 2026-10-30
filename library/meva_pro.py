@@ -5,6 +5,7 @@ ANSIBLE_METADATA = {
   'status': ['preview'],
   'supported_by': 'community',
 }
+# cspell:ignore sukhodoyev
 
 DOCUMENTATION = r'''
 ---

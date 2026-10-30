@@ -50,11 +50,8 @@ jobs:
           - split
         ansible_ver:
           - "06"
-          - "07"
-          - "08"
-          - "09"
           - "10"
-          - "11"
+          - "14"
     steps:
       - uses: actions/checkout@v7 # zizmor: ignore[unpinned-uses]
         with:
@@ -88,9 +85,9 @@ jobs:
           - full
           - split
         ansible_ver:
-          - "07"
-          - "09"
-          - "11"
+          - "06"
+          - "10"
+          - "14"
     steps:
       - uses: actions/checkout@v7 # zizmor: ignore[unpinned-uses]
         with:
@@ -105,7 +102,7 @@ jobs:
           ANSIBLE_GITHUB_TOKEN: ${{ secrets.LOCAL_WS_TOKEN }}
         run: molecule/downloads/run-tests.sh
   pytest:
-    name: Python tests
+    name: tests
     timeout-minutes: 5
     runs-on: ubuntu-24.04
     steps:
@@ -141,26 +138,31 @@ jobs:
           env.BRA }}/_shared/install/ansible/check-dir.sh | bash
   MegaLinter:
     name: MegaLinter
+    if: github.event_name != 'pull_request' ||
+      (github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.login != 'dependabot[bot]')
+    permissions:
+      contents: read
     timeout-minutes: 11
     runs-on: ubuntu-24.04
-    if: github.event_name != 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v7 # zizmor: ignore[unpinned-uses]
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          submodules: true
+          submodules: recursive
           persist-credentials: false
-      - name: MegaLinter
-        uses: oxsecurity/megalinter@v9 # zizmor: ignore[unpinned-uses]
+      - name: Run MegaLinter
         env:
-          VALIDATE_ALL_CODEBASE: true
+          OVERRIDE_DIR: .megalinter/configs
+        uses: megalomania428/github-actions/megalinter@master
   mega_service:
     name: test mega-service role
-    timeout-minutes: 55
+    timeout-minutes: 11
     runs-on: ubuntu-24.04
     needs:
       - default
       - downloads
+      - pytest
       - linters
       - MegaLinter
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
@@ -179,14 +181,17 @@ jobs:
     name: all green
     timeout-minutes: 5
     runs-on: ubuntu-24.04
-    needs: mega_service
-    if: github.event_name == 'pull_request'
-    permissions:
-      checks: read
+    needs:
+      - default
+      - downloads
+      - pytest
+      - linters
+      - MegaLinter
+      - mega_service
+    if: ${{ always() && github.event_name == 'pull_request' }}
     steps:
-      - name: waiting for checks success
-        uses: poseidon/wait-for-status-checks@v0.6.0 # zizmor: ignore[unpinned-uses]
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          ignore: all green, foobar
-          timeout: 111s
+      - name: Check dependencies
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          echo "$NEEDS" | jq -e 'all(.[]; .result == "success")'
