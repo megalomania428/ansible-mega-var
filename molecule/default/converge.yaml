@@ -28,6 +28,8 @@
         - name: Run all wrappers
           ansible.builtin.include_role:
             name: ansible-mega-var
+        - name: Check results of wrappers
+          ansible.builtin.include_tasks: "include/facts-case.yaml"
         - name: Trap broken conditionals in wrappers
           ansible.builtin.include_role:
             name: ansible-mega-var
@@ -35,6 +37,7 @@
             meva_packages: "{{ [w | combine(meva_trap_args['_apt.yaml'])] }}"
             meva_groups2create: "{{ [w | combine(meva_trap_args['_group.yaml'])] }}"
             meva_users2create: "{{ [w | combine(meva_trap_args['_user.yaml'])] }}"
+            meva_getent: "{{ [w | combine(meva_trap_args['_getent.yaml'])] }}"
             meva_dirs2create: "{{ [w | combine(meva_trap_args['_file.yaml'])] }}"
             meva_templates2upload: "{{ [w | combine(meva_trap_args['_template.yaml'])] }}"
             meva_files2upload: "{{ [w | combine(meva_trap_args['_copy.yaml'])] }}"
@@ -73,6 +76,10 @@
           ansible.builtin.include_role:
             name: ansible-mega-var
             tasks_from: _user.yaml
+        - name: Query getent
+          ansible.builtin.include_role:
+            name: ansible-mega-var
+            tasks_from: _getent.yaml
         - name: Create dirs
           ansible.builtin.include_role:
             name: ansible-mega-var
@@ -112,6 +119,8 @@
           ansible.builtin.include_role:
             name: ansible-mega-var
             tasks_from: _shell.yaml
+        - name: Check results of wrappers
+          ansible.builtin.include_tasks: "include/facts-case.yaml"
         - name: Trap broken conditionals in wrappers
           ansible.builtin.include_role:
             name: ansible-mega-var
@@ -121,6 +130,7 @@
             meva_packages: "{{ meva_trap }}"
             meva_groups2create: "{{ meva_trap }}"
             meva_users2create: "{{ meva_trap }}"
+            meva_getent: "{{ meva_trap }}"
             meva_dirs2create: "{{ meva_trap }}"
             meva_templates2upload: "{{ meva_trap }}"
             meva_files2upload: "{{ meva_trap }}"

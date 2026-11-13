@@ -1,8 +1,22 @@
 ---
+- name: Reset the meva_apt_results list
+  ansible.builtin.set_fact:
+    meva_apt_results: []
+  when: meva_results | bool and meva_reset | bool
 - name: Call module with each package
-  ansible.builtin.include_tasks: _apt1.yaml
+  ansible.builtin.include_tasks: "{{ '_meva_reset.yaml' if i.meva_reset_here |
+    default(false) else '_apt1.yaml' }}"
+  vars:
+    _meva_results_var: meva_apt_results
+    _meva_key: "{{ i.meva_key | default(_meva_censor if i.no_log | default(false) else
+      [i.name | default(i.package) | default(i.pkg) | default(i.deb) |
+      default('undefined')] | flatten | join(',')) }}"
+    _meva_name: "{{ i.meva_key | default(_meva_censor if i.no_log | default(false) else
+      [i.name | default(i.package) | default(i.pkg) | default(i.deb) |
+      default('undefined')] | flatten | join(', ')) }}"
   loop_control:
     loop_var: i
-    label: "{{ '(censored due to no_log)' if i.no_log | default(false)
-      else i.loop_label | default(i) }}"
+    label: "{{ i.loop_label | default('meva_reset_here') if i.meva_reset_here |
+      default(false) else '(censored due to no_log)' if i.no_log | default(false) else
+      i.loop_label | default(i) }}"
   loop: "{{ meva_packages }}"

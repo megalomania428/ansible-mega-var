@@ -1,5 +1,5 @@
 ---
-- name: Rsync some files
+- name: "Rsync {{ _meva_key }} tree" # noqa name[template]
   ansible.posix.synchronize:
     _local_rsync_password: "{{ i._local_rsync_password | default(omit) }}"
     _local_rsync_path: "{{ i._local_rsync_path | default(omit) }}"
@@ -58,4 +58,10 @@
     string else (_meva_cond_true if i.until else _meva_cond_false)) }}"
   async: "{{ i.async | default(omit) }}"
   poll: "{{ i.poll | default(omit) }}"
+  no_log: "{{ i.no_log | default(omit) }}"
+- name: Save the result into meva_rsync_results
+  ansible.builtin.set_fact:
+    meva_rsync_results: "{{ meva_rsync_results | default([]) + [_meva_record] }}"
+  when: meva_results | bool and i.meva_store | default(true) | bool
+  tags: "{{ i.tags | default(omit) }}"
   no_log: "{{ i.no_log | default(omit) }}"

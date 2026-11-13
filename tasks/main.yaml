@@ -8,6 +8,9 @@
 - name: Ensure some users
   ansible.builtin.include_tasks: _user.yaml
 
+- name: Query some getent entries
+  ansible.builtin.include_tasks: _getent.yaml
+
 - name: Ensure some files or directories
   ansible.builtin.include_tasks: _file.yaml
 

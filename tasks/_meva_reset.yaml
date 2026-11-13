@@ -1,0 +1,16 @@
+---
+- name: Check that the meva_reset_here item has only allowed keys
+  ansible.builtin.assert:
+    that:
+      - i.keys() | difference(['meva_reset_here', 'when', 'tags', 'loop_label']) == []
+    fail_msg: "meva_reset_here item allows only when, tags and loop_label keys, got {{
+      i.keys() | list }}"
+    quiet: true
+- name: "Reset {{ _meva_results_var }} list here" # noqa name[template]
+  ansible.builtin.set_fact:
+    "{{ _meva_results_var }}": [] # noqa var-naming[no-jinja]
+  when:
+    - meva_results | bool
+    - "{{ _meva_cond_true if i.when is not defined else (i.when if i.when is string else
+      (_meva_cond_true if i.when else _meva_cond_false)) }}" # noqa no-jinja-when
+  tags: "{{ i.tags | default(omit) }}"

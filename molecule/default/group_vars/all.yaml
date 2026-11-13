@@ -27,6 +27,11 @@ meva_users2create:
     home: "{{ service_home }}"
     shell: "/usr/sbin/nologin"
     password_expire_warn: 3
+meva_getent:
+  - database: passwd
+    key: "{{ service_name }}"
+  - database: group
+    key: "{{ service_name }}"
 meva_key2user:
   - user: "{{ service_name }}"
     key: "ssh-ed25519
@@ -105,6 +110,7 @@ meva_trap_args:
   _apt.yaml: {name: meva-trap-absent, state: absent}
   _group.yaml: {name: meva-trap-absent, state: absent}
   _user.yaml: {name: meva-trap-absent, state: absent}
+  _getent.yaml: {database: passwd, key: meva-trap-absent, fail_key: false}
   _file.yaml: {path: /nonexistent/meva-trap-absent, state: absent}
   _template.yaml: {src: "{{ meva_trap_src }}", dest: /nonexistent/meva-trap}
   _copy.yaml: {src: "{{ meva_trap_src }}", dest: /nonexistent/meva-trap}

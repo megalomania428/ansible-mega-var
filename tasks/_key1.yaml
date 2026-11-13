@@ -1,12 +1,12 @@
 ---
-- name: Check if user exists
+- name: "Check if {{ _meva_key }} user exists" # noqa name[template]
   ansible.builtin.getent:
     database: passwd
     key: "{{ i.user }}"
   register: user_check
   ignore_errors: true
 
-- name: Ensure some keys
+- name: "Ensure authorized key of {{ _meva_key }} user" # noqa name[template]
   ansible.posix.authorized_key:
     comment: "{{ i.comment | default(omit) }}"
     exclusive: "{{ i.exclusive | default(omit) }}"
@@ -43,4 +43,10 @@
     string else (_meva_cond_true if i.until else _meva_cond_false)) }}"
   async: "{{ i.async | default(omit) }}"
   poll: "{{ i.poll | default(omit) }}"
+  no_log: "{{ i.no_log | default(omit) }}"
+- name: Save the result into meva_key_results
+  ansible.builtin.set_fact:
+    meva_key_results: "{{ meva_key_results | default([]) + [_meva_record] }}"
+  when: meva_results | bool and i.meva_store | default(true) | bool
+  tags: "{{ i.tags | default(omit) }}"
   no_log: "{{ i.no_log | default(omit) }}"

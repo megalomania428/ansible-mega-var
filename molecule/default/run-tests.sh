@@ -19,7 +19,8 @@ ANSIBLE_LOG_PATH="${LOG_PATH}-3idempotence" \
   "${_appimage_bin}" molecule -v idempotence -s "${sce}" --
 printf "\n\n\nmolecule [converge] check\n"
 ANSIBLE_LOG_PATH="${LOG_PATH}-4converge-check" \
-  "${_appimage_bin}" molecule -v converge -s "${sce}" -- --check
+  "${_appimage_bin}" molecule -v converge -s "${sce}" -- --check \
+  --skip-tags meva-facts-skipped
 printf "\n\n\nmolecule [idempotence] check\n"
 ANSIBLE_LOG_PATH="${LOG_PATH}-5idempotence-check" \
   "${_appimage_bin}" molecule -v idempotence -s "${sce}" -- --check

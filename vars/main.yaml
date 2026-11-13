@@ -17,3 +17,9 @@ _meva_cond_changed: "_task_result.changed"
 _meva_cond_rc: "_task_result.rc != 0"
 _meva_cond_success: "_task_result is success"
 _meva_cond_unit: "unit_check.rc == 0 or not ansible_check_mode"
+_meva_censor: "(censored due to no_log)"
+_meva_status: "{{ 'skipped' if _task_result is skipped else 'failed' if _task_result is
+  failed else 'changed' if _task_result is changed else 'ok' }}"
+_meva_record: "{{ {'meva_key': _meva_key, 'meva_status': _meva_status} if i.no_log |
+  default(false) else _task_result | combine({'meva_key': _meva_key, 'meva_status':
+  _meva_status}) }}"

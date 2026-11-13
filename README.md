@@ -1,5 +1,7 @@
 # Actions from inventory variables
 
+<!-- cspell:ignore selectattr thinpool -->
+
 [![molecule](https://github.com/raven428/ansible-mega-var/actions/workflows/repo-test.yaml/badge.svg)](https://github.com/raven428/ansible-mega-var/actions/workflows/repo-test.yaml)
 
 The role performs actions from inventory variables without creating a lot of tasks and copy-pasted roles
@@ -39,6 +41,7 @@ In case you have most of the variables filled it's
         meva_packages: "{{ meva_site_packages }}"
         meva_groups2create: "{{ meva_site_groups2create }}"
         meva_users2create: "{{ meva_site_users2create }}"
+        meva_getent: "{{ meva_site_getent }}"
         meva_dirs2create: "{{ meva_site_dirs2create }}"
         meva_templates2upload: "{{ meva_site_templates2upload }}"
         meva_files2upload: "{{ meva_site_files2upload }}"
@@ -138,6 +141,37 @@ Every item of the wrapper variables, except `meva_file2down` and `meva_ghr2down`
 - `no_log: true` hides the label, the result, and the diff of this item only, e.g., for a private key in `content` of `meva_files2upload`; for `meva_key2user` and `meva_systemd4units` the label of the `included:` line becomes `(censored due to no_log)`
 - `loop_label` replaces the item printed in the `(item=…)` label, the whole item is printed by default
 - `when`, `failed_when`, `changed_when` and `until` (the latter is ignored by `meva_packages`, which always retries until success) take an Ansible expression string without `{{ }}`, e.g., `changed_when: _task_result.rc == 2`, or a boolean; the expression is evaluated as is, nothing like `| default(…)` is appended to it, so a variable undefined in the expression is an error, use `x is defined and …` or `x | default(…)` explicitly: it fails the item, except `when` on ansible-core older than 2.21, where the error is ignored; when the key is absent the wrapper default applies, e.g., `_task_result.failed` for `failed_when`
+- `meva_key` names the item: it replaces the entities in the task name, even with `no_log: true`, and becomes `meva_key` of the item record, see below; set it as a string: a non-string value, e.g., a number, becomes a string in the record on ansible-core 2.13 and 2.17 but keeps its type on 2.21, so a comparison in `selectattr` gives different results
+- `meva_store: false` skips the record of this item, see below
+- `meva_reset_here: true` makes the item a reset of the result list, see below
+
+### Getent queries with `meva_getent` variable
+
+Items of `meva_getent` are options of `ansible.builtin.getent`: `database` is mandatory, `key`, `service`, `split` and `fail_key` are optional; the common options above apply too. The whole role queries getent after groups and users and before files and directories. The module sets `getent_<database>` facts as usual, every call overwrites them
+
+### Results of wrapper items
+
+The results aren't saved by default. With `meva_results: true` every wrapper appends one record per item, in the order of execution, to its list `meva_<x>_results`, where `<x>` is the wrapper file name without `_` and `.yaml`: `meva_apt_results`, `meva_group_results`, `meva_user_results`, `meva_getent_results`, `meva_file_results`, `meva_template_results`, `meva_copy_results`, `meva_rsync_results`, `meva_systemd_results`, `meva_key_results`, `meva_parted_results`, `meva_lvg_results`, `meva_lvol_results`, `meva_filesystem_results`, `meva_mount_results`, `meva_command_results` and `meva_shell_results`. Downloads have no result list. With `meva_results: false` nothing is saved or reset: lists of previous calls with `meva_results: true` in the same run stay as they were, other lists are undefined
+
+- a record is the registered result of the module as is, e.g., `gid` in `meva_group_results` for a new and an existing group, `uid` in `meva_user_results`, except a new group or user in check mode, where the module returns neither, plus two keys:
+  - `meva_status` – `ok`, `changed`, `skipped` or `failed`
+  - `meva_key` – `meva_key` of the item or, without it, the natural key of the item: package names from `name`, `package` or `pkg` joined by `,` or `deb` for `meva_packages`, `name` for `meva_groups2create`, `name` or `user` for `meva_users2create`, `path`, `dest` or `name` for `meva_dirs2create`, `dest` for `meva_templates2upload`, `meva_files2upload` and `meva_tree2rsync`, `name` for `meva_systemd4units`, `user` for `meva_key2user`, `<device>:<number>` or `<device>` without `number` for `meva_partitions`, `vg` for `meva_lvg`, `<vg>/<lv>` (`lv` or `thinpool`) for `meva_lvol`, `dev` or `device` for `meva_filesystems`, `path` or `name` for `meva_mounts`, `cmd`, `argv` joined by a space or `free_form` for `meva_cmd2run`, `cmd` or `free_form` for `meva_run4shell`, `<database>:<key>` or `<database>` without `key` for `meva_getent`; an absent part is `undefined`
+- a record of `meva_getent_results` holds only `database`, `key` (`null` without it), `results`, `meva_key` and `meva_status`, where `results` is `getent_<database>` from `ansible_facts` of the module result in the `{name: [fields]}` form or `null` when the result has no such facts, e.g., for a skipped query or a failure of the module; a query, which succeeded but is failed by `failed_when`, keeps its data. The module keys the data by the first field of the entry, not by the requested key: `key: "992"` of `database: group` gives `results.kvm`; the fields are strings; an absent key with `fail_key: false` gives `null` for this key: `results` is `{<key>: null}`; a name that occurs in the database several times gives a list of lists of fields instead of a list of fields, e.g., `database: services` without `key` gives two entries under `domain`, `53/tcp` and `53/udp`, so the form of the value depends on the data of the database
+- a record is saved by a task right after the module task, so items skipped by `when` and failed with `ignore_errors: true` are saved too, while an item, which failed without `ignore_errors`, isn't saved: it stops the host as before, and an outer `rescue` gets its result as `ansible_failed_result`
+- the saving task inherits `tags` of the item, so an item skipped by `--tags` or `--skip-tags` isn't saved
+- records with the same `meva_key` aren't replaced: the history and the order are kept
+- an item with `no_log: true` saves only `meva_key` and `meva_status`, without the module result; without `meva_key` of the item its record has `meva_key: (censored due to no_log)`, because the natural key, e.g., `cmd`, may contain a secret
+- `meva_store: false` of an item skips its record
+- `meva_reset: true` (default) empties the list of the wrapper before each call, `meva_reset: false` keeps the records of previous calls
+- an item `- meva_reset_here: true` empties the list in the middle of the items; it allows only `when`, `tags` and `loop_label`, any other key fails the item even with `meva_results: false`; it doesn't depend on `meva_reset` and isn't saved itself
+- the lists are `set_fact` facts: they live till the end of the `ansible-playbook` run and are shared by all calls of the role in it, including calls from other roles
+
+Pick the last successful record of a key with filters only, `| list` before `last` is mandatory, because `selectattr` returns a generator and `last` calls `reversed()`:
+
+```yaml
+kvm_gid: "{{ (meva_group_results | selectattr('meva_key', 'eq', 'kvm')
+  | selectattr('meva_status', 'in', ['ok', 'changed']) | list | last).gid }}"
+```
 
 ### Simple HTTP download with `meva_file2down` variable
 

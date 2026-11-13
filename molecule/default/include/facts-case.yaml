@@ -1,0 +1,286 @@
+---
+# cspell:ignore gaiad
+- name: Check that no result list exists while meva_results is false
+  ansible.builtin.assert:
+    that: query('ansible.builtin.varnames', '^meva_.+_results$') == []
+    fail_msg: "{{ query('ansible.builtin.varnames', '^meva_.+_results$') }} exist"
+- name: Run all wrappers with meva_results in full call mode
+  ansible.builtin.include_role:
+    name: ansible-mega-var
+  vars:
+    meva_results: true
+  when: call_mode == 'full'
+- name: Run every wrapper with meva_results in split call mode
+  ansible.builtin.include_role:
+    name: ansible-mega-var
+    tasks_from: "{{ meva_facts_file }}"
+  vars:
+    meva_results: true
+  when: call_mode != 'full'
+  loop_control:
+    loop_var: meva_facts_file
+  loop:
+    - _apt.yaml
+    - _group.yaml
+    - _user.yaml
+    - _getent.yaml
+    - _file.yaml
+    - _template.yaml
+    - _copy.yaml
+    - _rsync.yaml
+    - _systemd.yaml
+    - _key.yaml
+    - _parted.yaml
+    - _lvg.yaml
+    - _lvol.yaml
+    - _filesystem.yaml
+    - _mount.yaml
+    - _command.yaml
+    - _shell.yaml
+- name: Check keys of records in every result list
+  ansible.builtin.assert:
+    that: meva_facts_found == meva_facts_keys
+    fail_msg: "keys {{ meva_facts_found }} instead of {{ meva_facts_keys }}"
+  vars:
+    meva_facts_found: "{{ dict(meva_facts_keys | list | zip(query('ansible.builtin.vars',
+      *meva_facts_keys) | map('map', attribute='meva_key') | map('list'))) }}"
+    meva_facts_keys:
+      meva_apt_results: ["git,vim,lsof,nginx,rsync"]
+      meva_group_results: ["{{ service_name }}"]
+      meva_user_results: ["{{ service_name }}"]
+      meva_getent_results: ["passwd:{{ service_name }}", "group:{{ service_name }}"]
+      meva_file_results:
+        - /usr/local/bin
+        - /usr/local
+        - "/usr/local/{{ service_name }}/.ssh"
+      meva_template_results: ["/etc/systemd/system/{{ service_name }}.service"]
+      meva_copy_results:
+        - "/usr/local/{{ service_name }}"
+        - "/usr/local/{{ service_name }}/editorconfig"
+      meva_rsync_results: ["/usr/local/{{ service_name }}/rsync"]
+      meva_systemd_results: ["{{ service_name }}"]
+      meva_key_results: ["{{ service_name }}"]
+      meva_parted_results: []
+      meva_lvg_results: []
+      meva_lvol_results: []
+      meva_filesystem_results: []
+      meva_mount_results: []
+      meva_command_results: [/usr/bin/env ls]
+      meva_shell_results: [/usr/bin/env ls]
+- name: Check uid and gid of records against getent
+  ansible.builtin.assert:
+    that:
+      - meva_user_results[0].uid | string ==
+        meva_getent_results[0].results[service_name][1]
+      - meva_group_results[0].gid | string ==
+        meva_getent_results[1].results[service_name][1]
+    fail_msg: "uid {{ meva_user_results[0].uid | default('none') }} and gid {{
+      meva_group_results[0].gid | default('none') }} differ from {{ meva_getent_results
+      }}"
+- name: Run groups with every kind of result
+  ansible.builtin.include_role:
+    name: ansible-mega-var
+    tasks_from: _group.yaml
+  vars:
+    meva_results: true
+    meva_groups2create:
+      - name: "{{ service_name }}"
+      - name: meva-facts-skipped
+        when: false
+      - name: "{{ service_name }}"
+        meva_key: meva-facts-failed
+        failed_when: true
+        ignore_errors: true
+      - name: "{{ service_name }}"
+        meva_store: false
+      - name: "{{ service_name }}"
+        no_log: true
+      - name: "{{ service_name }}"
+        meva_key: meva-facts-secret
+        no_log: true
+- name: Check order, keys and statuses of group records
+  ansible.builtin.assert:
+    that:
+      - meva_group_results | map(attribute='meva_key') | list == meva_facts_keys
+      - meva_group_results | map(attribute='meva_status') | list == meva_facts_statuses
+      - meva_group_results[0].gid is defined
+      - meva_group_results[3].keys() | sort == ['meva_key', 'meva_status']
+      - meva_group_results[4].keys() | sort == ['meva_key', 'meva_status']
+    fail_msg: "unexpected records {{ meva_group_results }}"
+  vars:
+    meva_facts_keys:
+      - "{{ service_name }}"
+      - meva-facts-skipped
+      - meva-facts-failed
+      - (censored due to no_log)
+      - meva-facts-secret
+    meva_facts_statuses: [ok, skipped, failed, ok, ok]
+- name: Run groups without reset of the list
+  ansible.builtin.include_role:
+    name: ansible-mega-var
+    tasks_from: _group.yaml
+  vars:
+    meva_reset: false
+    meva_results: true
+    meva_groups2create:
+      - meva_key: meva-facts-kept
+        name: "{{ service_name }}"
+- name: Check that records are kept between calls
+  ansible.builtin.assert:
+    that:
+      - meva_group_results | length == 6
+      - meva_group_results[0].meva_key == service_name
+      - meva_group_results[-1].meva_key == 'meva-facts-kept'
+    fail_msg: "unexpected records {{ meva_group_results }}"
+- name: Run groups with reset of the list
+  ansible.builtin.include_role:
+    name: ansible-mega-var
+    tasks_from: _group.yaml
+  vars:
+    meva_groups2create:
+      - meva_key: meva-facts-reset
+        name: "{{ service_name }}"
+    meva_results: true
+- name: Check that the list is reset before the call
+  ansible.builtin.assert:
+    that: meva_group_results | map(attribute='meva_key') | list == ['meva-facts-reset']
+    fail_msg: "unexpected records {{ meva_group_results }}"
+- name: Run groups with meva_reset_here between items
+  ansible.builtin.include_role:
+    name: ansible-mega-var
+    tasks_from: _group.yaml
+  vars:
+    meva_results: true
+    meva_groups2create:
+      - name: "{{ service_name }}"
+        meva_key: meva-facts-before
+      - meva_reset_here: true
+      - name: "{{ service_name }}"
+        meva_key: meva-facts-after
+- name: Check that meva_reset_here drops previous records
+  ansible.builtin.assert:
+    that: meva_group_results | map(attribute='meva_key') | list == ['meva-facts-after']
+    fail_msg: "unexpected records {{ meva_group_results }}"
+- name: Run groups with an item skipped by tags in the check run
+  ansible.builtin.include_role:
+    name: ansible-mega-var
+    tasks_from: _group.yaml
+  vars:
+    meva_results: true
+    meva_groups2create:
+      - name: "{{ service_name }}"
+        meva_key: meva-facts-untagged
+      - name: "{{ service_name }}"
+        meva_key: meva-facts-tagged
+        tags: [meva-facts-skipped]
+- name: Check that items skipped by tags aren't saved
+  ansible.builtin.assert:
+    that: meva_group_results | map(attribute='meva_key') | list == meva_facts_keys
+    fail_msg: "unexpected records {{ meva_group_results }}"
+    success_msg: "skipped by tags: {{ 'meva-facts-skipped' in ansible_skip_tags }}"
+  vars:
+    meva_facts_keys: "{{ ['meva-facts-untagged'] + ([] if 'meva-facts-skipped' in
+      ansible_skip_tags else ['meva-facts-tagged']) }}"
+- name: Run getent queries
+  ansible.builtin.include_role:
+    name: ansible-mega-var
+    tasks_from: _getent.yaml
+  vars:
+    meva_results: true
+    meva_getent:
+      - database: group
+        key: "0"
+      - database: group
+        key: "{{ service_name }}"
+      - database: passwd
+        key: meva-facts-absent
+        fail_key: false
+- name: Check getent records
+  ansible.builtin.assert:
+    that:
+      - meva_getent_results | map(attribute='meva_key') | list == meva_facts_keys
+      - meva_getent_results[0].results.root is defined
+      - "'0' not in meva_getent_results[0].results"
+      - meva_getent_results[2].results['meva-facts-absent'] is none
+      - meva_getent_results[2].keys() | sort == meva_facts_fields
+      - meva_getent_results[1].results[service_name][1] is string
+    fail_msg: "unexpected records {{ meva_getent_results }}"
+  vars:
+    meva_facts_keys: ["group:0", "group:{{ service_name }}", "passwd:meva-facts-absent"]
+    meva_facts_fields: [database, key, meva_key, meva_status, results]
+- name: Check that the meva_reset_here item rejects other keys without meva_results
+  block:
+    - name: Run the meva_reset_here item with an extra key
+      ansible.builtin.include_role:
+        name: ansible-mega-var
+        tasks_from: _group.yaml
+      vars:
+        meva_groups2create:
+          - meva_reset_here: true
+            name: meva-facts-extra
+    - name: Remember that the extra key is accepted
+      ansible.builtin.set_fact:
+        meva_facts_extra: accepted
+  rescue:
+    - name: Remember the failure message
+      ansible.builtin.set_fact:
+        meva_facts_extra: "{{ ansible_failed_result.msg }}"
+- name: Check that the extra key failed the item
+  ansible.builtin.assert:
+    that: meva_facts_extra is search('meva_reset_here item allows only')
+    fail_msg: "the extra key result is {{ meva_facts_extra }}"
+- name: Query the system group before it is created
+  ansible.builtin.include_role:
+    name: ansible-mega-var
+    tasks_from: _getent.yaml
+  vars:
+    meva_getent:
+      - database: group
+        key: meva-facts-system
+        fail_key: false
+    meva_results: true
+- name: Check that the system group is absent
+  ansible.builtin.assert:
+    that: meva_getent_results[0].results['meva-facts-system'] is none
+    fail_msg: "meva-facts-system group exists: {{ meva_getent_results }}"
+- name: Create the system group without gid and call it again
+  ansible.builtin.include_role:
+    name: ansible-mega-var
+    tasks_from: _group.yaml
+  vars:
+    meva_results: true
+    meva_groups2create:
+      - &meva_facts_system
+        name: meva-facts-system
+        system: true
+        check_mode: false
+        changed_when: false
+      - *meva_facts_system
+- name: Query the created system group
+  ansible.builtin.include_role:
+    name: ansible-mega-var
+    tasks_from: _getent.yaml
+  vars:
+    meva_results: true
+    meva_getent:
+      - database: group
+        key: meva-facts-system
+- name: Check gid of the new and the existing system group
+  ansible.builtin.assert:
+    that:
+      - meva_group_results | length == 2
+      - meva_group_results[0].gid is defined
+      - meva_group_results[0].gid == meva_group_results[1].gid
+      - meva_group_results[0].gid | string ==
+        meva_getent_results[0].results['meva-facts-system'][1]
+    fail_msg: "unexpected records {{ meva_group_results }} {{ meva_getent_results }}"
+- name: Remove the system group
+  ansible.builtin.include_role:
+    name: ansible-mega-var
+    tasks_from: _group.yaml
+  vars:
+    meva_groups2create:
+      - name: meva-facts-system
+        state: absent
+        check_mode: false
+        changed_when: false

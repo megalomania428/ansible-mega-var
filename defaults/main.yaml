@@ -18,3 +18,6 @@ meva_filesystems: []
 meva_mounts: []
 meva_cmd2run: [] # DevSkim: ignore DS126858
 meva_run4shell: []
+meva_getent: []
+meva_results: false
+meva_reset: true

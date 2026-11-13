@@ -10,6 +10,7 @@
     meva_packages: "{{ meva_notify_cases['_apt.yaml'] }}"
     meva_groups2create: "{{ meva_notify_cases['_group.yaml'] }}"
     meva_users2create: "{{ meva_notify_cases['_user.yaml'] }}"
+    meva_getent: "{{ meva_notify_cases['_getent.yaml'] }}"
     meva_dirs2create: "{{ meva_notify_cases['_file.yaml'] }}"
     meva_templates2upload: "{{ meva_notify_cases['_template.yaml'] }}"
     meva_files2upload: "{{ meva_notify_cases['_copy.yaml'] }}"

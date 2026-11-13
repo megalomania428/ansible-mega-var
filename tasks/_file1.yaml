@@ -1,5 +1,5 @@
 ---
-- name: Create some directories
+- name: "Ensure {{ _meva_key }} path" # noqa name[template]
   ansible.builtin.file:
     access_time_format: "{{ i.access_time_format | default(omit) if ansible_version.full
       is version('2.7', '>=') else omit }}"
@@ -49,4 +49,10 @@
     string else (_meva_cond_true if i.until else _meva_cond_false)) }}"
   async: "{{ i.async | default(omit) }}"
   poll: "{{ i.poll | default(omit) }}"
+  no_log: "{{ i.no_log | default(omit) }}"
+- name: Save the result into meva_file_results
+  ansible.builtin.set_fact:
+    meva_file_results: "{{ meva_file_results | default([]) + [_meva_record] }}"
+  when: meva_results | bool and i.meva_store | default(true) | bool
+  tags: "{{ i.tags | default(omit) }}"
   no_log: "{{ i.no_log | default(omit) }}"
