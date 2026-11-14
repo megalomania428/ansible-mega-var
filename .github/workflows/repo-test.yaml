@@ -45,6 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # jscpd:ignore-start
         call_mode:
           - full
           - split
@@ -64,6 +65,7 @@ jobs:
           ANSIBLE_CALL_MODE: ${{ matrix.call_mode }}
           ANSIBLE_GITHUB_TOKEN: ${{ secrets.LOCAL_WS_TOKEN }}
         run: molecule/default/run-tests.sh
+        # jscpd:ignore-stop
   downloads:
     name: t
     timeout-minutes: 33
