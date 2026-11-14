@@ -60,6 +60,7 @@ jobs:
           persist-credentials: false
       - name: test role
         env:
+          ANSIBLE_VER: "${{ matrix.ansible_ver }}"
           ANSIBLE_CALL_MODE: ${{ matrix.call_mode }}
           ANSIBLE_GITHUB_TOKEN: ${{ secrets.LOCAL_WS_TOKEN }}
         run: molecule/default/run-tests.sh
