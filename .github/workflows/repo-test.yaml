@@ -95,6 +95,7 @@ jobs:
           persist-credentials: false
       - name: test role
         env:
+          ANSIBLE_VER: "${{ matrix.ansible_ver }}"
           ANSIBLE_PROP_TYPE: ${{ matrix.prop_type }}
           ANSIBLE_CALL_MODE: ${{ matrix.call_mode }}
           ANSIBLE_GITHUB_TOKEN: ${{ secrets.LOCAL_WS_TOKEN }}
