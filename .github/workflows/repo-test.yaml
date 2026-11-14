@@ -165,7 +165,8 @@ jobs:
       - pytest
       - linters
       - MegaLinter
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: "${{ !cancelled() && !failure() && (github.event_name == 'pull_request' ||
+      github.event_name == 'workflow_dispatch') }}"
     steps:
       - name: trigger for mega-service role test
         env:
