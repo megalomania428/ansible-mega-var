@@ -1,0 +1,55 @@
+---
+- name: Check meva_reset_here under the tags selection of the run
+  hosts: all
+  gather_facts: false
+  connection: local
+  tasks:
+    - name: Fill the list with a record
+      ansible.builtin.include_role:
+        name: ansible-mega-var
+        tasks_from: _getent.yaml
+      vars:
+        meva_results: true
+        meva_getent:
+          - {database: passwd, key: root, tags: [untagged]}
+    - name: Check that the list has the record
+      ansible.builtin.assert:
+        that: meva_getent_results | map(attribute='meva_key') | list == ['passwd:root']
+        fail_msg: "unexpected records {{ meva_getent_results }}"
+    - name: Run the reset item with tags that the run doesn't select
+      ansible.builtin.include_role:
+        name: ansible-mega-var
+        tasks_from: _getent.yaml
+      vars:
+        meva_results: true
+        meva_reset: false
+        meva_getent:
+          - {meva_reset_here: true, tags: [meva-tags-case]}
+    - name: Check that the reset item with tags kept the record
+      ansible.builtin.assert:
+        that: meva_getent_results | map(attribute='meva_key') | list == ['passwd:root']
+        fail_msg: "unexpected records {{ meva_getent_results }}"
+    - name: Run the empty call with reset
+      ansible.builtin.include_role:
+        name: ansible-mega-var
+        tasks_from: _getent.yaml
+      vars:
+        meva_results: true
+        meva_getent: []
+    - name: Check that the empty call with reset emptied the list
+      ansible.builtin.assert:
+        that: meva_getent_results == []
+        fail_msg: "unexpected records {{ meva_getent_results }}"
+    - name: Fill the list and run the explicit reset item without tags
+      ansible.builtin.include_role:
+        name: ansible-mega-var
+        tasks_from: _getent.yaml
+      vars:
+        meva_results: true
+        meva_getent:
+          - {database: passwd, key: root, tags: [untagged]}
+          - {meva_reset_here: true}
+    - name: Check that the explicit reset item without tags emptied the list
+      ansible.builtin.assert:
+        that: meva_getent_results == []
+        fail_msg: "unexpected records {{ meva_getent_results }}"

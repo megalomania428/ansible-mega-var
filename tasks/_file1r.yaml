@@ -1,0 +1,5 @@
+---
+- name: Run the module task of the item
+  ansible.builtin.import_tasks: _file1.yaml
+- name: Save the result of the item
+  ansible.builtin.import_tasks: _meva_save.yaml

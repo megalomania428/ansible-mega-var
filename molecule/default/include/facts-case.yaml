@@ -145,6 +145,29 @@
   ansible.builtin.assert:
     that: meva_group_results | map(attribute='meva_key') | list == ['meva-facts-reset']
     fail_msg: "unexpected records {{ meva_group_results }}"
+- name: Run groups with an empty list without reset of the list
+  ansible.builtin.include_role:
+    name: ansible-mega-var
+    tasks_from: _group.yaml
+  vars:
+    meva_groups2create: []
+    meva_reset: false
+    meva_results: true
+- name: Check that the empty call without reset keeps the records
+  ansible.builtin.assert:
+    that: meva_group_results | map(attribute='meva_key') | list == ['meva-facts-reset']
+    fail_msg: "unexpected records {{ meva_group_results }}"
+- name: Run groups with an empty list and reset of the list
+  ansible.builtin.include_role:
+    name: ansible-mega-var
+    tasks_from: _group.yaml
+  vars:
+    meva_groups2create: []
+    meva_results: true
+- name: Check that the empty call with reset empties the list
+  ansible.builtin.assert:
+    that: meva_group_results == []
+    fail_msg: "unexpected records {{ meva_group_results }}"
 - name: Run groups with meva_reset_here between items
   ansible.builtin.include_role:
     name: ansible-mega-var
@@ -207,6 +230,39 @@
     fail_msg: "unexpected records {{ meva_getent_results }}"
   vars:
     meva_facts_keys: ["group:0", "group:{{ service_name }}", "passwd:meva-facts-absent"]
+    meva_facts_fields: [database, key, meva_key, meva_status, results]
+- name: Run getent queries with and without no_log
+  ansible.builtin.include_role:
+    name: ansible-mega-var
+    tasks_from: _getent.yaml
+  vars:
+    meva_results: true
+    meva_getent:
+      - database: group
+        key: "{{ service_name }}"
+      - database: group
+        key: "{{ service_name }}"
+        no_log: true
+      - database: group
+        key: "{{ service_name }}"
+        meva_key: meva-facts-getent-secret
+        no_log: true
+- name: Check getent records with and without no_log
+  ansible.builtin.assert:
+    that:
+      - meva_getent_results | map(attribute='meva_key') | list == meva_facts_keys
+      - meva_getent_results[0].keys() | sort == meva_facts_fields
+      - meva_getent_results[0].database == 'group'
+      - meva_getent_results[0].key == service_name
+      - meva_getent_results[0].results[service_name][1] is string
+      - meva_getent_results[1].keys() | sort == ['meva_key', 'meva_status']
+      - meva_getent_results[2].keys() | sort == ['meva_key', 'meva_status']
+    fail_msg: "unexpected records {{ meva_getent_results }}"
+  vars:
+    meva_facts_keys:
+      - "group:{{ service_name }}"
+      - (censored due to no_log)
+      - meva-facts-getent-secret
     meva_facts_fields: [database, key, meva_key, meva_status, results]
 - name: Check that the meva_reset_here item rejects other keys without meva_results
   block:

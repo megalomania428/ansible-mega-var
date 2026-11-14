@@ -1,0 +1,25 @@
+---
+- name: Check meva_reset_here with the tags selection of the run
+  ansible.builtin.command:
+    argv:
+      - "{{ lookup('ansible.builtin.env', 'HOME') }}/bin/ansible-current.AppImage"
+      - ansible-playbook
+      - -i
+      - "localhost," # DevSkim: ignore DS162092
+      - -e
+      - "ansible_python_interpreter={{ ansible_playbook_python }}"
+      - "{{ playbook_dir }}/include/tags-play.yaml"
+      - "{{ meva_tags_option[0] }}"
+      - "{{ meva_tags_option[1] }}"
+  environment:
+    ANSIBLE_LOG_PATH: /dev/null
+    ANSIBLE_VERBOSITY: "0"
+  delegate_to: localhost # DevSkim: ignore DS162092
+  check_mode: false
+  changed_when: false
+  loop_control:
+    loop_var: meva_tags_option
+    label: "{{ meva_tags_option | join(' ') }}"
+  loop:
+    - ["--tags", "untagged"]
+    - ["--skip-tags", "tagged"]

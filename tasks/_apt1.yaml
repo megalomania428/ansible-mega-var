@@ -64,9 +64,3 @@
   async: "{{ i.async | default(77) }}"
   poll: "{{ i.poll | default(5) }}"
   no_log: "{{ i.no_log | default(omit) }}"
-- name: Save the result into meva_apt_results
-  ansible.builtin.set_fact:
-    meva_apt_results: "{{ meva_apt_results | default([]) + [_meva_record] }}"
-  when: meva_results | bool and i.meva_store | default(true) | bool
-  tags: "{{ i.tags | default(omit) }}"
-  no_log: "{{ i.no_log | default(omit) }}"

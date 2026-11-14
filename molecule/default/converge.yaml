@@ -156,3 +156,5 @@
             loop_var: w
             label: "{{ w.key }}"
           loop: "{{ meva_trap_args | dict2items }}"
+    - name: Check meva_reset_here under tags selection of the run
+      ansible.builtin.include_tasks: "include/tags-case.yaml"
