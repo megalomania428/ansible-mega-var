@@ -2,7 +2,7 @@
 # cspell:ignore moreutils
 set -ueo pipefail
 umask 0022
-: "${APPIMAGE_RELEASE:="v010"}"
+: "${APPIMAGE_RELEASE:="010"}"
 : "${APPIMAGE_NAME:="ansible-11-006.AppImage"}"
 [[ -v ANSIBLE_GITHUB_TOKEN ]] || {
   echo 'mandatory variable [ANSIBLE_GITHUB_TOKEN] not found, exiting…'
