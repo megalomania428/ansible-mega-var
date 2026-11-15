@@ -156,9 +156,6 @@
             loop_var: w
             label: "{{ w.key }}"
           loop: "{{ meva_trap_args | dict2items }}"
-    - name: Check tags of wrapper items against tasks without templates
-      ansible.builtin.include_tasks: "include/tags-matrix-case.yaml"
-      when: run_traps
     - name: Check meva_reset_here under tags selection of the run
       ansible.builtin.include_tasks: "include/tags-case.yaml"
     - name: Check lists of wrappers passed with extra vars

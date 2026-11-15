@@ -40,7 +40,7 @@ concurrency:
 jobs:
   default:
     name: default
-    timeout-minutes: 55
+    timeout-minutes: 33
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -65,6 +65,30 @@ jobs:
           ANSIBLE_CALL_MODE: ${{ matrix.call_mode }}
           ANSIBLE_GITHUB_TOKEN: ${{ secrets.LOCAL_WS_TOKEN }}
         run: molecule/default/run-tests.sh
+        # jscpd:ignore-stop
+  tags:
+    name: tags
+    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        # jscpd:ignore-start
+        ansible_ver:
+          - "06"
+          - "10"
+          - "14"
+    steps:
+      - uses: actions/checkout@v7 # zizmor: ignore[unpinned-uses]
+        with:
+          fetch-depth: 0
+          submodules: true
+          persist-credentials: false
+      - name: test tags
+        env:
+          ANSIBLE_VER: "${{ matrix.ansible_ver }}"
+          ANSIBLE_GITHUB_TOKEN: ${{ secrets.LOCAL_WS_TOKEN }}
+        run: tests/tags/run-tests.sh
         # jscpd:ignore-stop
   downloads:
     name: t
@@ -165,6 +189,7 @@ jobs:
       - pytest
       - linters
       - MegaLinter
+      - tags
     if: "${{ !cancelled() && !failure() && (github.event_name == 'pull_request' ||
       github.event_name == 'workflow_dispatch') }}"
     steps:
@@ -189,6 +214,7 @@ jobs:
       - linters
       - MegaLinter
       - mega_service
+      - tags
     if: ${{ always() && github.event_name == 'pull_request' }}
     steps:
       - name: Check dependencies
