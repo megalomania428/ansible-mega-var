@@ -2,55 +2,74 @@
 # cspell:ignore dirname
 # jscpd:ignore-start
 - name: Call the roles in the play without tags
-  hosts: "{{ 'all' if meva_tags_place | default('') == 'plain' else 'all:!all' }}"
+  hosts: plain
   gather_facts: false
   connection: local
-  vars_files: tags-matrix-vars.yaml
-  roles:
-    - meva_tags_ref
-    - "{{ playbook_dir | dirname | dirname | dirname }}" # noqa: role-name[path]
+  vars_files: vars.yaml
+  tasks:
+    - name: Import the reference role
+      ansible.builtin.import_role:
+        name: meva_tags_ref
+    - name: Import the getent wrapper
+      ansible.builtin.import_role:
+        name: "{{ playbook_dir | dirname | dirname }}" # noqa: role-name[path]
+        tasks_from: _getent.yaml
 - name: Call the roles in the play with tag mega-var
-  hosts: "{{ 'all' if meva_tags_place | default('') == 'play-mega-var' else 'all:!all' }}"
+  hosts: play-mega-var
   gather_facts: false
   connection: local
-  vars_files: tags-matrix-vars.yaml
+  vars_files: vars.yaml
   tags: [mega-var]
-  roles:
-    - meva_tags_ref
-    - "{{ playbook_dir | dirname | dirname | dirname }}" # noqa: role-name[path]
+  tasks:
+    - name: Import the reference role
+      ansible.builtin.import_role:
+        name: meva_tags_ref
+    - name: Import the getent wrapper
+      ansible.builtin.import_role:
+        name: "{{ playbook_dir | dirname | dirname }}" # noqa: role-name[path]
+        tasks_from: _getent.yaml
 - name: Call the roles in the play with tag x
-  hosts: "{{ 'all' if meva_tags_place | default('') == 'play-x' else 'all:!all' }}"
+  hosts: play-x
   gather_facts: false
   connection: local
-  vars_files: tags-matrix-vars.yaml
+  vars_files: vars.yaml
   tags: [x]
-  roles:
-    - meva_tags_ref
-    - "{{ playbook_dir | dirname | dirname | dirname }}" # noqa: role-name[path]
+  tasks:
+    - name: Import the reference role
+      ansible.builtin.import_role:
+        name: meva_tags_ref
+    - name: Import the getent wrapper
+      ansible.builtin.import_role:
+        name: "{{ playbook_dir | dirname | dirname }}" # noqa: role-name[path]
+        tasks_from: _getent.yaml
 - name: Call the roles in the play with tag always
-  hosts: "{{ 'all' if meva_tags_place | default('') == 'play-always' else 'all:!all' }}"
+  hosts: play-always
   gather_facts: false
   connection: local
-  vars_files: tags-matrix-vars.yaml
+  vars_files: vars.yaml
   tags: [always]
-  roles:
-    - meva_tags_ref
-    - "{{ playbook_dir | dirname | dirname | dirname }}" # noqa: role-name[path]
+  tasks:
+    - name: Import the reference role
+      ansible.builtin.import_role:
+        name: meva_tags_ref
+    - name: Import the getent wrapper
+      ansible.builtin.import_role:
+        name: "{{ playbook_dir | dirname | dirname }}" # noqa: role-name[path]
+        tasks_from: _getent.yaml
 - name: Call the roles with tag mega-var
-  hosts: "{{ 'all' if meva_tags_place | default('') == 'roles-mega-var' else
-    'all:!all' }}"
+  hosts: roles-mega-var
   gather_facts: false
   connection: local
-  vars_files: tags-matrix-vars.yaml
+  vars_files: vars.yaml
   roles:
     - {role: meva_tags_ref, tags: [mega-var]}
-    - role: "{{ playbook_dir | dirname | dirname | dirname }}" # noqa: role-name[path]
+    - role: "{{ playbook_dir | dirname | dirname }}" # noqa: role-name[path]
       tags: [mega-var]
 - name: Include the roles without tags
-  hosts: "{{ 'all' if meva_tags_place | default('') == 'include-role' else 'all:!all' }}"
+  hosts: include-role
   gather_facts: false
   connection: local
-  vars_files: tags-matrix-vars.yaml
+  vars_files: vars.yaml
   tasks:
     - name: Include the reference role
       ansible.builtin.include_role:
@@ -60,11 +79,10 @@
         name: ansible-mega-var
         tasks_from: _getent.yaml
 - name: Include the roles with tag mega-var
-  hosts: "{{ 'all' if meva_tags_place | default('') == 'include-role-mega-var' else
-    'all:!all' }}"
+  hosts: include-role-mega-var
   gather_facts: false
   connection: local
-  vars_files: tags-matrix-vars.yaml
+  vars_files: vars.yaml
   tasks:
     - name: Include the reference role
       ansible.builtin.include_role:
@@ -76,11 +94,10 @@
         tasks_from: _getent.yaml
       tags: [mega-var]
 - name: Include the roles with tag mega-var and apply
-  hosts: "{{ 'all' if meva_tags_place | default('') == 'include-role-apply-mega-var' else
-    'all:!all' }}"
+  hosts: include-role-apply-mega-var
   gather_facts: false
   connection: local
-  vars_files: tags-matrix-vars.yaml
+  vars_files: vars.yaml
   tasks:
     - name: Include the reference role
       ansible.builtin.include_role:
@@ -96,11 +113,10 @@
           tags: [mega-var]
       tags: [mega-var]
 - name: Include the roles with tag always
-  hosts: "{{ 'all' if meva_tags_place | default('') == 'include-role-always' else
-    'all:!all' }}"
+  hosts: include-role-always
   gather_facts: false
   connection: local
-  vars_files: tags-matrix-vars.yaml
+  vars_files: vars.yaml
   tasks:
     - name: Include the reference role
       ansible.builtin.include_role:
@@ -112,11 +128,10 @@
         tasks_from: _getent.yaml
       tags: [always]
 - name: Include the roles with tag always and apply
-  hosts: "{{ 'all' if meva_tags_place | default('') == 'include-role-apply-always' else
-    'all:!all' }}"
+  hosts: include-role-apply-always
   gather_facts: false
   connection: local
-  vars_files: tags-matrix-vars.yaml
+  vars_files: vars.yaml
   tasks:
     - name: Include the reference role
       ansible.builtin.include_role:
@@ -132,11 +147,10 @@
           tags: [always]
       tags: [always]
 - name: Import the roles with tag mega-var
-  hosts: "{{ 'all' if meva_tags_place | default('') == 'import-role-mega-var' else
-    'all:!all' }}"
+  hosts: import-role-mega-var
   gather_facts: false
   connection: local
-  vars_files: tags-matrix-vars.yaml
+  vars_files: vars.yaml
   tasks:
     - name: Import the reference role
       ansible.builtin.import_role:
@@ -144,15 +158,14 @@
       tags: [mega-var]
     - name: Import the getent wrapper
       ansible.builtin.import_role:
-        name: "{{ playbook_dir | dirname | dirname | dirname }}" # noqa: role-name[path]
+        name: "{{ playbook_dir | dirname | dirname }}" # noqa: role-name[path]
         tasks_from: _getent.yaml
       tags: [mega-var]
 - name: Include the roles in the block with tag mega-var
-  hosts: "{{ 'all' if meva_tags_place | default('') == 'block-mega-var' else
-    'all:!all' }}"
+  hosts: block-mega-var
   gather_facts: false
   connection: local
-  vars_files: tags-matrix-vars.yaml
+  vars_files: vars.yaml
   tasks:
     - name: Run the roles in the block with tag mega-var
       tags: [mega-var]

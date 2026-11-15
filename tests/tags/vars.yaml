@@ -5,17 +5,60 @@ meva_reset: true
 meva_getent_results:
   - {meva_key: meva-tags-prefill}
 meva_getent:
-  - {database: passwd, key: root, meva_key: meva-tags-absent}
-  - {database: passwd, key: root, meva_key: meva-tags-empty-list, tags: []}
-  - {database: passwd, key: root, meva_key: meva-tags-null, tags: null}
-  - {database: passwd, key: root, meva_key: meva-tags-empty-string, tags: ""}
-  - {database: passwd, key: root, meva_key: meva-tags-list-x, tags: [x]}
-  - {database: passwd, key: root, meva_key: meva-tags-string-x, tags: x}
-  - {database: passwd, key: root, meva_key: meva-tags-string-xy, tags: "x,y"}
-  - {database: passwd, key: root, meva_key: meva-tags-string-xy-space, tags: "x, y"}
-  - {database: passwd, key: root, meva_key: meva-tags-list-xy, tags: [x, y]}
-  - {database: passwd, key: root, meva_key: meva-tags-always, tags: [always]}
-  - {database: passwd, key: root, meva_key: meva-tags-untagged, tags: [untagged]}
+  - database: passwd
+    key: root
+    meva_key: meva-tags-absent
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-empty-list
+    tags: []
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-null
+    tags: null
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-empty-string
+    tags: ""
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-list-x
+    tags: [x]
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-string-x
+    tags: x
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-string-xy
+    tags: "x,y"
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-string-xy-space
+    tags: "x, y"
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-list-xy
+    tags: [x, y]
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-always
+    tags: [always]
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-untagged
+    tags: [untagged]
+    when: false
 meva_tags_refs:
   meva-tags-absent: none
   meva-tags-empty-list: none
