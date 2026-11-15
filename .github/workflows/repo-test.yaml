@@ -40,7 +40,7 @@ concurrency:
 jobs:
   default:
     name: default
-    timeout-minutes: 33
+    timeout-minutes: 55
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false

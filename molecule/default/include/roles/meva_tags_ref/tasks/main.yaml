@@ -1,0 +1,7 @@
+---
+- name: Run the reference tasks for each item
+  ansible.builtin.include_tasks: inner.yaml
+  loop_control:
+    loop_var: i
+    label: "{{ i.meva_key }}"
+  loop: "{{ meva_getent }}"

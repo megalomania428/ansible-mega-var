@@ -1,0 +1,25 @@
+---
+- name: Hit the reference task without tags
+  ansible.builtin.debug:
+    msg: "HIT {{ i.meva_key }}"
+  when: meva_tags_refs[i.meva_key] == 'none'
+- name: Hit the reference task with tag x
+  ansible.builtin.debug:
+    msg: "HIT {{ i.meva_key }}"
+  when: meva_tags_refs[i.meva_key] == 'x'
+  tags: [x]
+- name: Hit the reference task with tags x and y
+  ansible.builtin.debug:
+    msg: "HIT {{ i.meva_key }}"
+  when: meva_tags_refs[i.meva_key] == 'xy'
+  tags: [x, y]
+- name: Hit the reference task with tag always
+  ansible.builtin.debug:
+    msg: "HIT {{ i.meva_key }}"
+  when: meva_tags_refs[i.meva_key] == 'always'
+  tags: [always]
+- name: Hit the reference task with tag untagged
+  ansible.builtin.debug:
+    msg: "HIT {{ i.meva_key }}"
+  when: meva_tags_refs[i.meva_key] == 'untagged'
+  tags: [untagged]
