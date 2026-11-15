@@ -1,0 +1,93 @@
+---
+- name: Run the command wrapper and the plain loop with lists from extra vars
+  ansible.builtin.command:
+    argv:
+      - "{{ lookup('ansible.builtin.env', 'HOME') }}/bin/ansible-current.AppImage"
+      - ansible-playbook
+      - -i
+      - "localhost," # DevSkim: ignore DS162092
+      - -e
+      - "ansible_python_interpreter={{ ansible_playbook_python }}"
+      - -e
+      - "{{ meva_string_case.extra }}"
+      - -e
+      - "meva_results={{ meva_string_case.results }}"
+      - -e
+      - "meva_reset={{ meva_string_case.reset }}"
+      - "{{ playbook_dir }}/include/{{ meva_string_case.play }}"
+  environment:
+    ANSIBLE_LOG_PATH: /dev/null
+    ANSIBLE_VERBOSITY: "0"
+    ANSIBLE_FORCE_COLOR: "0"
+    ANSIBLE_STDOUT_CALLBACK: default
+    ANSIBLE_DISPLAY_OK_HOSTS: "true"
+    ANSIBLE_DISPLAY_INCLUDED_HOSTS: "true"
+  delegate_to: localhost # DevSkim: ignore DS162092
+  check_mode: false
+  changed_when: false
+  failed_when: false
+  no_log: true
+  register: meva_string_runs
+  loop_control:
+    loop_var: meva_string_case
+    label: "{{ meva_string_case.play }} {{ meva_string_case.extra }} meva_results={{
+      meva_string_case.results }} meva_reset={{ meva_string_case.reset }}"
+  loop:
+    - play: string-loop-play.yaml
+      extra: 'meva_cmd2run=[{"argv":["true"]}]' # DevSkim: ignore DS126858
+      results: false
+      reset: true
+      string: true
+    - play: string-play.yaml
+      extra: 'meva_cmd2run=[{"argv":["true"]}]' # DevSkim: ignore DS126858
+      results: false
+      reset: true
+      string: true
+    - play: string-play.yaml
+      extra: 'meva_cmd2run=[{"argv":["true"]}]' # DevSkim: ignore DS126858
+      results: true
+      reset: true
+      string: true
+    - play: string-play.yaml
+      extra: 'meva_cmd2run=[{"argv":["true"]}]' # DevSkim: ignore DS126858
+      results: true
+      reset: false
+      string: true
+    - play: string-play.yaml
+      extra: "@{{ playbook_dir }}/include/string-list.yaml"
+      results: false
+      reset: true
+      string: false
+    - play: string-play.yaml
+      extra: "@{{ playbook_dir }}/include/string-list.yaml"
+      results: true
+      reset: true
+      string: false
+    - play: string-play.yaml
+      extra: "@{{ playbook_dir }}/include/string-list.yaml"
+      results: true
+      reset: false
+      string: false
+- name: Hide the recap of the nested runs from the idempotence check of molecule
+  ansible.builtin.set_fact:
+    meva_string_clean: "{{ meva_string_runs | to_json | replace('changed=', 'changed:')
+      | from_json }}"
+- name: Check the runs against the plain loop on this version of ansible-core
+  ansible.builtin.assert:
+    that:
+      - (meva_string_run.rc == 0) == (not meva_string_run.meva_string_case.string or
+        ansible_version.full is version('2.19', '<'))
+      - meva_string_run.rc == 0 or "The `loop` value must resolve to a 'list', not
+        'str'." in meva_string_run.stdout ~ meva_string_run.stderr
+      - >-
+        meva_string_run.rc != 0 or "(item={'argv': ['true']})" in
+        meva_string_run.stdout
+    fail_msg: "unexpected rc {{ meva_string_run.rc }}: {{ meva_string_run.stdout_lines
+      }} {{ meva_string_run.stderr_lines }}"
+  loop_control:
+    loop_var: meva_string_run
+    label: "{{ meva_string_run.meva_string_case.play }} {{
+      meva_string_run.meva_string_case.extra }} meva_results={{
+      meva_string_run.meva_string_case.results }} meva_reset={{
+      meva_string_run.meva_string_case.reset }}"
+  loop: "{{ meva_string_clean.results }}"

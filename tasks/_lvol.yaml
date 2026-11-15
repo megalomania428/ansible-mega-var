@@ -6,6 +6,7 @@
     '_lvol1.yaml' }}"
   vars:
     _meva_results_var: meva_lvol_results
+    _meva_list: "{{ meva_lvol }}"
     _meva_key: "{{ i.meva_key | default(_meva_censor if i.no_log | default(false) else
       i.vg | default('undefined') ~ '/' ~ i.lv | default(i.thinpool) |
       default('undefined')) }}"
@@ -14,5 +15,4 @@
     label: "{{ i.loop_label | default('meva_reset_here') if i.meva_reset_here |
       default(false) else '(censored due to no_log)' if i.no_log | default(false) else
       i.loop_label | default(i) }}"
-  loop: "{{ ([{'meva_reset_here': true, 'loop_label': 'meva_reset'}] if meva_results |
-    bool and meva_reset | bool else []) + meva_lvol }}"
+  loop: "{{ _meva_loop }}"

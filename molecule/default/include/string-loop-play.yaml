@@ -1,0 +1,13 @@
+---
+- name: Run the plain loop over the list from extra vars
+  hosts: all
+  gather_facts: false
+  connection: local
+  tasks:
+    - name: Run each command of the list
+      ansible.builtin.command:
+        argv: "{{ i.argv }}"
+      changed_when: false
+      loop_control:
+        loop_var: i
+      loop: "{{ meva_cmd2run }}" # DevSkim: ignore DS126858
