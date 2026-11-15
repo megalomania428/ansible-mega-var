@@ -48,7 +48,7 @@
   delay: "{{ i.delay | default(1) }}"
   until: _task_result is success
   register: _task_result
-  tags: "{{ i.tags | default(omit) }}"
+  tags: "{{ _meva_tags }}"
   diff: "{{ i.diff | default(omit) }}"
   failed_when: "{{ _meva_cond_failed if i.failed_when is not defined else (i.failed_when
     if i.failed_when is string else (_meva_cond_true if i.failed_when else
