@@ -1,0 +1,107 @@
+---
+# cspell:ignore prefill
+meva_results: true
+meva_reset: true
+meva_getent_results:
+  - {meva_key: meva-tags-prefill}
+meva_getent:
+  - database: passwd
+    key: root
+    meva_key: meva-tags-absent
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-empty-list
+    tags: []
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-null
+    tags: null
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-empty-string
+    tags: ""
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-list-x
+    tags: [x]
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-string-x
+    tags: x
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-string-xy
+    tags: "x,y"
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-string-xy-space
+    tags: "x, y"
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-list-xy
+    tags: [x, y]
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-always
+    tags: [always]
+    when: false
+  - database: passwd
+    key: root
+    meva_key: meva-tags-untagged
+    tags: [untagged]
+    when: false
+meva_tags_refs:
+  meva-tags-absent: none
+  meva-tags-empty-list: none
+  meva-tags-null: none
+  meva-tags-empty-string: none
+  meva-tags-list-x: x
+  meva-tags-string-x: x
+  meva-tags-string-xy: xy
+  meva-tags-string-xy-space: xy
+  meva-tags-list-xy: xy
+  meva-tags-always: always
+  meva-tags-untagged: untagged
+meva_tags_places:
+  - plain
+  - play-mega-var
+  - play-x
+  - play-always
+  - roles-mega-var
+  - include-role
+  - include-role-mega-var
+  - include-role-apply-mega-var
+  - include-role-always
+  - include-role-apply-always
+  - import-role-mega-var
+  - block-mega-var
+meva_tags_selectors:
+  - []
+  - ["--tags", "untagged"]
+  - ["--skip-tags", "tagged"]
+  - ["--skip-tags", "untagged"]
+  - ["--tags", "tagged"]
+  - ["--tags", "all"]
+  - ["--tags", "mega-var"]
+  - ["--tags", "x"]
+  - ["--skip-tags", "x"]
+  - ["--tags", "y"]
+  - ["--skip-tags", "y"]
+  - ["--tags", "mega-var", "--skip-tags", "untagged"]
+  - ["--tags", "x,untagged"]
+  - ["--skip-tags", "x,untagged"]
+  - ["--tags", "tagged", "--skip-tags", "untagged"]
+  - ["--tags", "untagged", "--skip-tags", "x"]
+  - ["--tags", "always"]
+  - ["--skip-tags", "always"]
+  - ["--skip-tags", "all"]
+  - ["--tags", "never"]

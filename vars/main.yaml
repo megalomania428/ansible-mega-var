@@ -23,3 +23,9 @@ _meva_status: "{{ 'skipped' if _task_result is skipped else 'failed' if _task_re
 _meva_record: "{{ {'meva_key': _meva_key, 'meva_status': _meva_status} if i.no_log |
   default(false) else _task_result | combine({'meva_key': _meva_key, 'meva_status':
   _meva_status}) }}"
+_meva_loop: "{{ _meva_list if _meva_list is string or not (meva_results | bool and
+  meva_reset | bool) else [{'meva_reset_here': true, 'loop_label': 'meva_reset'}] +
+  _meva_list }}"
+_meva_tags: "{{ (i.tags.split(',') | map('trim') | list if i.tags is string else i.tags)
+  if i.tags | default(false) else omit if 'untagged' in ansible_skip_tags else
+  ['untagged'] }}"

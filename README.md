@@ -20,7 +20,7 @@ The role performs actions from inventory variables without creating a lot of tas
 
   ```bash
   git checkout master && git pull
-  git tag -fm $(git branch --sho) 1.0.10 && git push --force origin $(git describe)
+  git tag -fm $(git branch --sho) 1.0.11 && git push --force origin $(git describe)
   ```
 
 ## Example `site.yaml` (TLDR)
@@ -151,7 +151,7 @@ Items of `meva_getent` are options of `ansible.builtin.getent`: `database` is ma
 
 ### Results of wrapper items
 
-The results aren't saved by default. With `meva_results: true` every wrapper appends one record per item, in the order of execution, to its list `meva_<x>_results`, where `<x>` is the wrapper file name without `_` and `.yaml`: `meva_apt_results`, `meva_group_results`, `meva_user_results`, `meva_getent_results`, `meva_file_results`, `meva_template_results`, `meva_copy_results`, `meva_rsync_results`, `meva_systemd_results`, `meva_key_results`, `meva_parted_results`, `meva_lvg_results`, `meva_lvol_results`, `meva_filesystem_results`, `meva_mount_results`, `meva_command_results` and `meva_shell_results`. Downloads have no result list. With `meva_results: false` nothing is saved or reset: lists of previous calls with `meva_results: true` in the same run stay as they were, other lists are undefined; the wrappers neither run nor show the saving of records and the reset of the list before the call, only an explicit `meva_reset_here` item still checks its keys and shows its reset as skipped
+The results aren't saved by default. With `meva_results: true` every wrapper appends one record per item, in the order of execution, to its list `meva_<x>_results`, where `<x>` is the wrapper file name without `_` and `.yaml`: `meva_apt_results`, `meva_group_results`, `meva_user_results`, `meva_getent_results`, `meva_file_results`, `meva_template_results`, `meva_copy_results`, `meva_rsync_results`, `meva_systemd_results`, `meva_key_results`, `meva_parted_results`, `meva_lvg_results`, `meva_lvol_results`, `meva_filesystem_results`, `meva_mount_results`, `meva_command_results` and `meva_shell_results`. Downloads have no result list. With `meva_results: false` nothing is saved or reset: lists of previous calls with `meva_results: true` in the same run stay as they were, other lists are undefined; the wrappers neither run nor show the saving of records and the reset of the list before the call, only an explicit `meva_reset_here` item still checks its keys and shows its reset as skipped. A wrapper list passed as a string, e.g., `-e 'meva_cmd2run=[…]'`, behaves as in ansible-core itself: 2.13 and 2.17 turn it into a list, 2.21 fails, so pass a real list with YAML, `-e @file` or `-e` with a JSON object like `-e '{"meva_cmd2run": […]}'`
 
 - a record is the registered result of the module as is, e.g., `gid` in `meva_group_results` for a new and an existing group, `uid` in `meva_user_results`, except a new group or user in check mode, where the module returns neither, plus two keys:
   - `meva_status` – `ok`, `changed`, `skipped` or `failed`
@@ -159,6 +159,7 @@ The results aren't saved by default. With `meva_results: true` every wrapper app
 - a record of `meva_getent_results` holds only `database`, `key` (`null` without it), `results`, `meva_key` and `meva_status`, where `results` is `getent_<database>` from `ansible_facts` of the module result in the `{name: [fields]}` form or `null` when the result has no such facts, e.g., for a skipped query or a failure of the module; a query, which succeeded but is failed by `failed_when`, keeps its data. The module keys the data by the first field of the entry, not by the requested key: `key: "992"` of `database: group` gives `results.kvm`; the fields are strings; an absent key with `fail_key: false` gives `null` for this key: `results` is `{<key>: null}`; a name that occurs in the database several times gives a list of lists of fields instead of a list of fields, e.g., `database: services` without `key` gives two entries under `domain`, `53/tcp` and `53/udp`, so the form of the value depends on the data of the database
 - a record is saved by a task right after the module task, so items skipped by `when` and failed with `ignore_errors: true` are saved too, while an item, which failed without `ignore_errors`, isn't saved: it stops the host as before, and an outer `rescue` gets its result as `ansible_failed_result`
 - the saving task inherits `tags` of the item, so an item skipped by `--tags` or `--skip-tags` isn't saved
+- `tags` of an item work as `tags` of a task: a string is split by commas, and a missing key, `[]`, `null` and `''` work as a task without tags, including `--tags untagged`, `--skip-tags tagged` and `--skip-tags untagged` with tags inherited from the play or the role
 - records with the same `meva_key` aren't replaced: the history and the order are kept
 - an item with `no_log: true` saves only `meva_key` and `meva_status`, without the module result; without `meva_key` of the item its record has `meva_key: (censored due to no_log)`, because the natural key, e.g., `cmd`, may contain a secret
 - `meva_store: false` of an item skips its record

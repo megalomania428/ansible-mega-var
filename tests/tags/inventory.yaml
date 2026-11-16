@@ -1,0 +1,18 @@
+---
+all:
+  vars:
+    ansible_connection: local
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  hosts:
+    plain: {}
+    play-mega-var: {}
+    play-x: {}
+    play-always: {}
+    roles-mega-var: {}
+    include-role: {}
+    include-role-mega-var: {}
+    include-role-apply-mega-var: {}
+    include-role-always: {}
+    include-role-apply-always: {}
+    import-role-mega-var: {}
+    block-mega-var: {}

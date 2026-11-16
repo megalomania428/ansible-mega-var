@@ -11,7 +11,7 @@
       vars:
         meva_results: true
         meva_getent:
-          - {database: passwd, key: root, tags: [untagged]}
+          - {database: passwd, key: root}
     - name: Check that the list has the record
       ansible.builtin.assert:
         that: meva_getent_results | map(attribute='meva_key') | list == ['passwd:root']
@@ -47,7 +47,7 @@
       vars:
         meva_results: true
         meva_getent:
-          - {database: passwd, key: root, tags: [untagged]}
+          - {database: passwd, key: root}
           - {meva_reset_here: true}
     - name: Check that the explicit reset item without tags emptied the list
       ansible.builtin.assert:

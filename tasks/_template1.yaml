@@ -31,7 +31,7 @@
   register: _task_result
   when: "{{ _meva_cond_true if i.when is not defined else (i.when if i.when is string else
     (_meva_cond_true if i.when else _meva_cond_false)) }}" # noqa no-jinja-when
-  tags: "{{ i.tags | default(omit) }}"
+  tags: "{{ _meva_tags }}"
   diff: "{{ i.diff | default(omit) }}"
   notify: "{{ i.notify | default(omit) }}"
   timeout: "{{ i.timeout | default(omit) }}"

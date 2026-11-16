@@ -1,0 +1,21 @@
+---
+- name: Run the command wrapper with the list from extra vars
+  hosts: all
+  gather_facts: false
+  connection: local
+  tasks:
+    - name: Set a record left by an earlier call in the same play
+      ansible.builtin.set_fact:
+        meva_command_results:
+          - meva_key: earlier
+            meva_status: ok
+    - name: Run the command wrapper
+      ansible.builtin.include_role:
+        name: ansible-mega-var
+        tasks_from: _command.yaml
+    - name: Check the records of the command wrapper
+      ansible.builtin.assert:
+        that: meva_command_results | map(attribute='meva_key') | list ==
+          (['earlier'] if not meva_results | bool else ['true'] if meva_reset |
+          bool else ['earlier', 'true'])
+        fail_msg: "unexpected records {{ meva_command_results }}"

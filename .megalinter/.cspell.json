@@ -1,0 +1,17 @@
+{
+  "version": "0.2",
+  "import": [".cspell-action.json"],
+  "ignorePaths": ["molecule/downloads/files/**/*"],
+  "words": [
+    "appimage",
+    "chevrge",
+    "lvol",
+    "meva",
+    "selevel",
+    "serole",
+    "setype",
+    "seuser",
+    "shobj",
+    "vimrc"
+  ]
+}

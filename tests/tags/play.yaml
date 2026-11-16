@@ -1,0 +1,180 @@
+---
+# cspell:ignore dirname
+# jscpd:ignore-start
+- name: Call the roles in the play without tags
+  hosts: plain
+  gather_facts: false
+  connection: local
+  vars_files: vars.yaml
+  tasks:
+    - name: Import the reference role
+      ansible.builtin.import_role:
+        name: meva_tags_ref
+    - name: Import the getent wrapper
+      ansible.builtin.import_role:
+        name: "{{ playbook_dir | dirname | dirname }}" # noqa: role-name[path]
+        tasks_from: _getent.yaml
+- name: Call the roles in the play with tag mega-var
+  hosts: play-mega-var
+  gather_facts: false
+  connection: local
+  vars_files: vars.yaml
+  tags: [mega-var]
+  tasks:
+    - name: Import the reference role
+      ansible.builtin.import_role:
+        name: meva_tags_ref
+    - name: Import the getent wrapper
+      ansible.builtin.import_role:
+        name: "{{ playbook_dir | dirname | dirname }}" # noqa: role-name[path]
+        tasks_from: _getent.yaml
+- name: Call the roles in the play with tag x
+  hosts: play-x
+  gather_facts: false
+  connection: local
+  vars_files: vars.yaml
+  tags: [x]
+  tasks:
+    - name: Import the reference role
+      ansible.builtin.import_role:
+        name: meva_tags_ref
+    - name: Import the getent wrapper
+      ansible.builtin.import_role:
+        name: "{{ playbook_dir | dirname | dirname }}" # noqa: role-name[path]
+        tasks_from: _getent.yaml
+- name: Call the roles in the play with tag always
+  hosts: play-always
+  gather_facts: false
+  connection: local
+  vars_files: vars.yaml
+  tags: [always]
+  tasks:
+    - name: Import the reference role
+      ansible.builtin.import_role:
+        name: meva_tags_ref
+    - name: Import the getent wrapper
+      ansible.builtin.import_role:
+        name: "{{ playbook_dir | dirname | dirname }}" # noqa: role-name[path]
+        tasks_from: _getent.yaml
+- name: Call the roles with tag mega-var
+  hosts: roles-mega-var
+  gather_facts: false
+  connection: local
+  vars_files: vars.yaml
+  roles:
+    - {role: meva_tags_ref, tags: [mega-var]}
+    - role: "{{ playbook_dir | dirname | dirname }}" # noqa: role-name[path]
+      tags: [mega-var]
+- name: Include the roles without tags
+  hosts: include-role
+  gather_facts: false
+  connection: local
+  vars_files: vars.yaml
+  tasks:
+    - name: Include the reference role
+      ansible.builtin.include_role:
+        name: meva_tags_ref
+    - name: Include the getent wrapper
+      ansible.builtin.include_role:
+        name: ansible-mega-var
+        tasks_from: _getent.yaml
+- name: Include the roles with tag mega-var
+  hosts: include-role-mega-var
+  gather_facts: false
+  connection: local
+  vars_files: vars.yaml
+  tasks:
+    - name: Include the reference role
+      ansible.builtin.include_role:
+        name: meva_tags_ref
+      tags: [mega-var]
+    - name: Include the getent wrapper
+      ansible.builtin.include_role:
+        name: ansible-mega-var
+        tasks_from: _getent.yaml
+      tags: [mega-var]
+- name: Include the roles with tag mega-var and apply
+  hosts: include-role-apply-mega-var
+  gather_facts: false
+  connection: local
+  vars_files: vars.yaml
+  tasks:
+    - name: Include the reference role
+      ansible.builtin.include_role:
+        name: meva_tags_ref
+        apply:
+          tags: [mega-var]
+      tags: [mega-var]
+    - name: Include the getent wrapper
+      ansible.builtin.include_role:
+        name: ansible-mega-var
+        tasks_from: _getent.yaml
+        apply:
+          tags: [mega-var]
+      tags: [mega-var]
+- name: Include the roles with tag always
+  hosts: include-role-always
+  gather_facts: false
+  connection: local
+  vars_files: vars.yaml
+  tasks:
+    - name: Include the reference role
+      ansible.builtin.include_role:
+        name: meva_tags_ref
+      tags: [always]
+    - name: Include the getent wrapper
+      ansible.builtin.include_role:
+        name: ansible-mega-var
+        tasks_from: _getent.yaml
+      tags: [always]
+- name: Include the roles with tag always and apply
+  hosts: include-role-apply-always
+  gather_facts: false
+  connection: local
+  vars_files: vars.yaml
+  tasks:
+    - name: Include the reference role
+      ansible.builtin.include_role:
+        name: meva_tags_ref
+        apply:
+          tags: [always]
+      tags: [always]
+    - name: Include the getent wrapper
+      ansible.builtin.include_role:
+        name: ansible-mega-var
+        tasks_from: _getent.yaml
+        apply:
+          tags: [always]
+      tags: [always]
+- name: Import the roles with tag mega-var
+  hosts: import-role-mega-var
+  gather_facts: false
+  connection: local
+  vars_files: vars.yaml
+  tasks:
+    - name: Import the reference role
+      ansible.builtin.import_role:
+        name: meva_tags_ref
+      tags: [mega-var]
+    - name: Import the getent wrapper
+      ansible.builtin.import_role:
+        name: "{{ playbook_dir | dirname | dirname }}" # noqa: role-name[path]
+        tasks_from: _getent.yaml
+      tags: [mega-var]
+- name: Include the roles in the block with tag mega-var
+  hosts: block-mega-var
+  gather_facts: false
+  connection: local
+  vars_files: vars.yaml
+  tasks:
+    - name: Run the roles in the block with tag mega-var
+      tags: [mega-var]
+      block:
+        - name: Include the reference role
+          ansible.builtin.include_role:
+            name: meva_tags_ref
+        - name: Include the getent wrapper
+          ansible.builtin.include_role:
+            name: ansible-mega-var
+            tasks_from: _getent.yaml
+# jscpd:ignore-end

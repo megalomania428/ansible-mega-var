@@ -66,6 +66,30 @@ jobs:
           ANSIBLE_GITHUB_TOKEN: ${{ secrets.LOCAL_WS_TOKEN }}
         run: molecule/default/run-tests.sh
         # jscpd:ignore-stop
+  tags:
+    name: tags
+    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        # jscpd:ignore-start
+        ansible_ver:
+          - "06"
+          - "10"
+          - "14"
+    steps:
+      - uses: actions/checkout@v7 # zizmor: ignore[unpinned-uses]
+        with:
+          fetch-depth: 0
+          submodules: true
+          persist-credentials: false
+      - name: test tags
+        env:
+          ANSIBLE_VER: "${{ matrix.ansible_ver }}"
+          ANSIBLE_GITHUB_TOKEN: ${{ secrets.LOCAL_WS_TOKEN }}
+        run: tests/tags/run-tests.sh
+        # jscpd:ignore-stop
   downloads:
     name: t
     timeout-minutes: 33
@@ -133,10 +157,10 @@ jobs:
           BRA: master
         run: |
           curl -sL \
-          https://raw.githubusercontent.com/raven428/container-images/refs/heads/${{
+          https://raw.githubusercontent.com/megalomania428/container-images/refs/heads/${{
           env.BRA }}/sources/linters-ubuntu-22_04/check-dir.sh | bash
           curl -sL \
-          https://raw.githubusercontent.com/raven428/container-images/refs/heads/${{
+          https://raw.githubusercontent.com/megalomania428/container-images/refs/heads/${{
           env.BRA }}/_shared/install/ansible/check-dir.sh | bash
   MegaLinter:
     name: MegaLinter
@@ -154,8 +178,6 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - name: Run MegaLinter
-        env:
-          OVERRIDE_DIR: .megalinter/configs
         uses: megalomania428/github-actions/megalinter@master
   mega_service:
     name: test mega-service role
@@ -167,6 +189,7 @@ jobs:
       - pytest
       - linters
       - MegaLinter
+      - tags
     if: "${{ !cancelled() && !failure() && (github.event_name == 'pull_request' ||
       github.event_name == 'workflow_dispatch') }}"
     steps:
@@ -191,6 +214,7 @@ jobs:
       - linters
       - MegaLinter
       - mega_service
+      - tags
     if: ${{ always() && github.event_name == 'pull_request' }}
     steps:
       - name: Check dependencies

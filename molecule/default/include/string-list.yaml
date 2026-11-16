@@ -1,0 +1,3 @@
+---
+meva_cmd2run: # DevSkim: ignore DS126858
+  - argv: ["true"]
